@@ -5,7 +5,6 @@ export default function HomePage() {
     <div className="flex min-h-screen flex-col">
       {/* Hero - 8004scan style: compact, explorer feel */}
       <section className="relative overflow-hidden border-b border-zinc-800/80 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,rgba(20,184,166,0.08),transparent)]" />
         <div className="relative w-full">
           <div className="flex flex-col items-center text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/5 px-4 py-1.5 text-sm text-teal-400">
