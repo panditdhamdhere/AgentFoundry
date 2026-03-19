@@ -8,7 +8,12 @@ import {
 } from "wagmi";
 import { decodeEventLog } from "viem";
 import { REGISTRY_ABI } from "@/lib/registry";
-import { REGISTRY_ADDRESSES } from "@/lib/constants";
+import {
+  REGISTRY_ADDRESSES,
+  BLOCK_EXPLORERS,
+  getBlockExplorerUrl,
+  isChainSupported,
+} from "@/lib/constants";
 import type { AgentService } from "@/lib/types";
 
 const DEFAULT_IMAGE =
@@ -40,8 +45,18 @@ export function AgentForm({
   const pendingRef = useRef<PendingRegistration | null>(null);
 
   const chainId = chain?.id ?? 84532;
-  const registryAddress = REGISTRY_ADDRESSES[chainId];
-  const agentRegistry = `eip155:${chainId}:${registryAddress}`;
+  const registryAddress = REGISTRY_ADDRESSES[chainId as keyof typeof REGISTRY_ADDRESSES];
+  const agentRegistry = registryAddress
+    ? `eip155:${chainId}:${registryAddress}`
+    : "";
+  const isSupported = !!registryAddress && isChainSupported(chainId);
+  const blockExplorerInfo = registryAddress
+    ? BLOCK_EXPLORERS[chainId as keyof typeof BLOCK_EXPLORERS]
+    : null;
+  const explorerUrl = registryAddress
+    ? getBlockExplorerUrl(chainId, registryAddress)
+    : null;
+  const explorerName = blockExplorerInfo?.name ?? "Explorer";
 
   const {
     writeContract: registerContract,
@@ -196,8 +211,14 @@ export function AgentForm({
     e.preventDefault();
     setError(null);
 
-    if (!address || !registryAddress) {
+    if (!address) {
       setError("Please connect your wallet");
+      return;
+    }
+    if (!registryAddress || !isSupported) {
+      setError(
+        `Chain not supported. Please switch to an ERC-8004 supported network.`
+      );
       return;
     }
 
@@ -262,17 +283,25 @@ export function AgentForm({
         </div>
       )}
 
-      {step === "done" && registeredAgentId && (
+      {step === "done" && registeredAgentId && registryAddress && explorerUrl && (
         <div className="rounded-lg border border-green-500/50 bg-green-500/10 p-4 text-green-400">
-          Success! Agent #{registeredAgentId.toString()} registered.{" "}
+          Success! Agent #{registeredAgentId.toString()} registered on{" "}
+          {chain?.name || "network"}.{" "}
           <a
-            href={`https://sepolia.basescan.org/address/${registryAddress}#readContract`}
+            href={explorerUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="underline"
           >
-            View on BaseScan
+            View on {explorerName}
           </a>
+        </div>
+      )}
+
+      {address && !isSupported && (
+        <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4 text-amber-400">
+          Switch to an ERC-8004 supported network (Base, Ethereum, Polygon,
+          Arbitrum, etc.).
         </div>
       )}
 
@@ -389,7 +418,7 @@ export function AgentForm({
 
       <button
         type="submit"
-        disabled={!address || isProcessing}
+        disabled={!address || !isSupported || isProcessing}
         className="w-full rounded-lg bg-teal-600 py-3 font-semibold text-white transition-colors hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {step === "done" ? "Registered!" : "Register Agent"}

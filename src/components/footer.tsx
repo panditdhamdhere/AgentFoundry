@@ -110,8 +110,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-zinc-800/80 pt-8 sm:flex-row">
           <p className="text-xs text-zinc-600">
-            Built on Base Sepolia. Part of the ERC-8004 Trustless Agents
-            ecosystem.
+            Multi-chain · Part of the ERC-8004 Trustless Agents ecosystem.
           </p>
         </div>
       </div>

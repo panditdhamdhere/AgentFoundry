@@ -3,6 +3,7 @@
 import { useAccount } from "wagmi";
 import Link from "next/link";
 import { AgentForm } from "@/components/agent-form";
+import { ChainBadge } from "@/components/chain-badge";
 
 export default function RegisterPage() {
   const { isConnected } = useAccount();
@@ -11,6 +12,11 @@ export default function RegisterPage() {
     <div className="w-full px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-xl">
       <div className="mb-8">
+        {isConnected && (
+          <div className="mb-4">
+            <ChainBadge />
+          </div>
+        )}
         <h1 className="text-2xl font-bold sm:text-3xl">Create Agent</h1>
         <p className="mt-2 text-zinc-500">
           Give your AI agent an on-chain identity with ERC-8004. Connect your
@@ -21,8 +27,8 @@ export default function RegisterPage() {
       {!isConnected ? (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
           <p className="text-zinc-400">
-            Connect your wallet to register an agent. We use Base Sepolia for
-            testing.
+            Connect your wallet to register an agent. Supports 40+ chains:
+            Base, Ethereum, Polygon, Arbitrum, Optimism, and more.
           </p>
           <p className="mt-4 text-sm text-zinc-500">
             Need testnet ETH?{" "}

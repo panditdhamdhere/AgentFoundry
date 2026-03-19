@@ -8,7 +8,7 @@ No-code ERC-8004 AI agent registration. Register your AI agents on-chain with a 
 - **No-Code Registration** — Fill in a form; we handle IPFS upload and on-chain registration
 - **Multi-Service Support** — Add MCP, A2A, web, and other endpoint types
 - **Image Upload** — Upload agent avatars to IPFS or use a URL
-- **Base Sepolia** — Deployed on Base Sepolia testnet (ERC-8004)
+- **Multi-chain** — 40+ networks: Base, Ethereum, Polygon, Arbitrum, Optimism, Avalanche, BSC, Scroll, Linea, and more (ERC-8004)
 
 ## Tech Stack
 
@@ -42,9 +42,9 @@ No-code ERC-8004 AI agent registration. Register your AI agents on-chain with a 
    - `PINATA_GATEWAY` — Your Pinata gateway domain (e.g. `your-gateway.mypinata.cloud`)
    - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` — From [WalletConnect Cloud](https://cloud.walletconnect.com/)
 
-3. **Get testnet ETH**
+3. **Get testnet ETH** (for Base Sepolia / Sepolia)
 
-   Use [Alchemy Base Sepolia Faucet](https://www.alchemy.com/faucets/base-sepolia) to get testnet ETH for gas.
+   [Base Sepolia Faucet](https://www.alchemy.com/faucets/base-sepolia) · [Sepolia Faucet](https://www.alchemy.com/faucets/ethereum-sepolia)
 
 4. **Run the app**
 
@@ -62,10 +62,12 @@ This app uses the [ERC-8004 Trustless Agents](https://eips.ethereum.org/EIPS/eip
 - **Reputation Registry** — On-chain feedback (not yet implemented in this UI)
 - **Validation Registry** — Independent verification (not yet implemented)
 
-Contract addresses:
+Supported chains (40+ networks). Contract addresses via [ERC-8004 deterministic deployment](https://github.com/erc-8004/erc-8004-contracts):
 
-- Base Sepolia: `0x8004A818BFB912233c491871b3d84c89A494BD9e`
-- Base Mainnet: `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`
+- **Mainnets**: `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`
+- **Testnets**: `0x8004A818BFB912233c491871b3d84c89A494BD9e`
+
+Networks include: Ethereum, Base, Sepolia, Arbitrum, Optimism, Polygon, Avalanche, BSC, Celo, Gnosis, Linea, Mantle, Scroll, Metis, Taiko, XLayer, Abstract, Monad, and more. See [erc-8004-contracts](https://github.com/erc-8004/erc-8004-contracts) for the full list.
 
 ## License
 

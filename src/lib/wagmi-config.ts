@@ -1,9 +1,10 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { baseSepolia } from "wagmi/chains";
+import { SUPPORTED_CHAINS } from "./constants";
 
 export const config = getDefaultConfig({
-  appName: "Agent Registry",
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "YOUR_PROJECT_ID",
-  chains: [baseSepolia],
+  appName: "AgentFoundry",
+  projectId:
+    process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "YOUR_PROJECT_ID",
+  chains: [...SUPPORTED_CHAINS],
   ssr: true,
 });

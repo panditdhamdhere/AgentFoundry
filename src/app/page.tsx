@@ -47,9 +47,11 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center justify-center gap-8 text-center sm:justify-between">
             <div>
               <p className="text-2xl font-semibold tabular-nums text-zinc-100">
-                Base Sepolia
+                Multi-Chain
               </p>
-              <p className="text-xs text-zinc-500">Network</p>
+              <p className="text-xs text-zinc-500">
+                40+ chains · Base, Polygon, Arbitrum, etc.
+              </p>
             </div>
             <div>
               <p className="text-2xl font-semibold tabular-nums text-teal-400">
