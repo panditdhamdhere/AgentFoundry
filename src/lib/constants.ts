@@ -115,6 +115,29 @@ export const REGISTRY_ADDRESSES: Record<number, `0x${string}`> = {} as Record<
 TESTNET_CHAINS.forEach((c) => {
   REGISTRY_ADDRESSES[c.id] = TESTNET_IDENTITY;
 });
+
+/** Block explorer token URL (ERC-721 view) - 8004scan agent pages often 404 */
+export function getAgentExplorerUrl(chainId: number, agentId: string): string {
+  const registry = REGISTRY_ADDRESSES[chainId];
+  if (!registry) return `https://www.8004scan.io/agents`;
+  const tokenUrls: Record<number, string> = {
+    [baseSepolia.id]: `https://sepolia.basescan.org/token/${registry}?a=${agentId}`,
+    [base.id]: `https://basescan.org/token/${registry}?a=${agentId}`,
+    [sepolia.id]: `https://sepolia.etherscan.io/token/${registry}?a=${agentId}`,
+    [mainnet.id]: `https://etherscan.io/token/${registry}?a=${agentId}`,
+    [arbitrumSepolia.id]: `https://sepolia.arbiscan.io/token/${registry}?a=${agentId}`,
+    [arbitrum.id]: `https://arbiscan.io/token/${registry}?a=${agentId}`,
+    [optimismSepolia.id]: `https://sepolia-optimism.etherscan.io/token/${registry}?a=${agentId}`,
+    [optimism.id]: `https://optimistic.etherscan.io/token/${registry}?a=${agentId}`,
+    [polygonAmoy.id]: `https://amoy.polygonscan.com/token/${registry}?a=${agentId}`,
+    [polygon.id]: `https://polygonscan.com/token/${registry}?a=${agentId}`,
+    [avalancheFuji.id]: `https://testnet.snowtrace.io/token/${registry}?a=${agentId}`,
+    [avalanche.id]: `https://snowtrace.io/token/${registry}?a=${agentId}`,
+    [bscTestnet.id]: `https://testnet.bscscan.com/token/${registry}?a=${agentId}`,
+    [bsc.id]: `https://bscscan.com/token/${registry}?a=${agentId}`,
+  };
+  return tokenUrls[chainId] ?? `https://www.8004scan.io/agents`;
+}
 MAINNET_CHAINS.forEach((c) => {
   REGISTRY_ADDRESSES[c.id] = MAINNET_IDENTITY;
 });

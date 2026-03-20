@@ -2,9 +2,19 @@
 
 import { useAccount } from "wagmi";
 import Link from "next/link";
+import { useUserAgents } from "@/hooks/use-user-agents";
+import { getAgentExplorerUrl } from "@/lib/constants";
+
+const CHAIN_NAMES: Record<number, string> = {
+  84532: "Base Sepolia",
+  8453: "Base",
+  11155111: "Sepolia",
+  1: "Ethereum",
+};
 
 export default function DashboardPage() {
   const { isConnected, address } = useAccount();
+  const { agents, isLoading, isFetching, error, refetch } = useUserAgents();
 
   return (
     <div className="section-padding w-full">
@@ -34,23 +44,67 @@ export default function DashboardPage() {
               <p className="mt-2 font-mono text-sm text-zinc-300">{address}</p>
             </div>
 
-            <div className="card-base border-dashed border-zinc-700/60 bg-zinc-900/20 p-12 text-center">
-              <p className="text-zinc-500">
-                Agents you register will appear here. The ERC-8004 registry stores
-                agents on-chain—you can view all agents on{" "}
-                <a
-                  href="https://www.8004scan.io/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-teal-400 transition-colors hover:text-teal-300"
+            <div className="card-base p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  Your Agents
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isLoading || isFetching}
+                  className="text-xs font-medium text-teal-400 hover:text-teal-300 disabled:opacity-50"
                 >
-                  8004scan
-                </a>
-                .
-              </p>
-              <Link href="/register" className="btn-primary mt-6">
-                Create your first agent
-              </Link>
+                  {isLoading ? "Loading…" : isFetching ? "Refreshing…" : "Refresh"}
+                </button>
+              </div>
+
+              {error && (
+                <p className="mt-3 text-sm text-red-400">
+                  {error.message}. Try refreshing or check the console.
+                </p>
+              )}
+
+              {isLoading ? (
+                <p className="mt-4 text-sm text-zinc-500">Loading agents…</p>
+              ) : agents.length === 0 ? (
+                <div className="mt-6 rounded-xl border border-dashed border-zinc-700/60 bg-zinc-900/20 p-8 text-center">
+                  <p className="text-zinc-500">
+                    No agents yet. Register one to get started.
+                  </p>
+                  <Link href="/register" className="btn-primary mt-4 inline-block">
+                    Create your first agent
+                  </Link>
+                </div>
+              ) : (
+                <ul className="mt-4 space-y-3">
+                  {agents.map((agent, i) => {
+                    const chainName = CHAIN_NAMES[agent.chainId] ?? `Chain ${agent.chainId}`;
+                    const scanUrl = getAgentExplorerUrl(agent.chainId, agent.agentId);
+                    return (
+                      <li
+                        key={`${agent.chainId}-${agent.agentId}-${i}`}
+                        className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/40 px-4 py-3"
+                      >
+                        <div>
+                          <p className="font-mono text-sm font-medium text-zinc-100">
+                            Agent #{agent.agentId}
+                          </p>
+                          <p className="text-xs text-zinc-500">{chainName}</p>
+                        </div>
+                        <a
+                          href={scanUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-secondary text-sm"
+                        >
+                          View on Explorer →
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
           </div>
         )}
