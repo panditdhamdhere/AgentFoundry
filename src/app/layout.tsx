@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Sora, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { AnimatedBackground } from "@/components/animated-background";
+import { EnvBanner } from "@/components/env-banner";
 import "./globals.css";
 import "../../sentry.client.config";
 
@@ -42,6 +43,7 @@ export default function RootLayout({
       className={`${plusJakarta.variable} ${sora.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
+        <EnvBanner />
         <Providers>
           <AnimatedBackground />
           {children}

@@ -6,14 +6,9 @@
 
 const isProd = process.env.NODE_ENV === "production";
 
-function requireClientEnv(key: string): string {
+function getClientEnv(key: string): string {
   const value = process.env[key] ?? "";
-  if (isProd && (!value.trim() || value === "YOUR_PROJECT_ID")) {
-    throw new Error(
-      `Missing required env: ${key}. Add it in Vercel → Settings → Environment Variables`
-    );
-  }
-  return value || "YOUR_PROJECT_ID";
+  return value.trim() && value !== "YOUR_PROJECT_ID" ? value : "";
 }
 
 export const env = {
@@ -22,14 +17,17 @@ export const env = {
     gateway: process.env.PINATA_GATEWAY ?? "",
   },
   walletConnect: {
-    projectId: requireClientEnv("NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"),
+    get projectId() {
+      const id = getClientEnv("NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID");
+      return id || "00000000000000000000000000000000"; // Placeholder so app loads
+    },
   },
   rpc: {
     mainnet: process.env.NODE_RPC_URL_MAINNET,
     baseSepolia: process.env.NODE_RPC_URL_BASE_SEPOLIA,
   },
   apiKey: process.env.API_KEY ?? "",
-} as const;
+};
 
 /** If API_KEY is set, requests must include x-api-key header. */
 export function requireApiKeyIfConfigured(request: Request): boolean {
