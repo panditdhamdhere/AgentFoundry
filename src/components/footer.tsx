@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-zinc-800/70 bg-zinc-950/50">
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
+    <footer className="mt-auto w-full border-t border-zinc-800/70 bg-zinc-950/50">
+      <div className="w-full px-4 py-14 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-12 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-sm">
             <Link
