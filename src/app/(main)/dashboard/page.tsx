@@ -3,14 +3,7 @@
 import { useAccount } from "wagmi";
 import Link from "next/link";
 import { useUserAgents } from "@/hooks/use-user-agents";
-import { getAgentExplorerUrl } from "@/lib/constants";
-
-const CHAIN_NAMES: Record<number, string> = {
-  84532: "Base Sepolia",
-  8453: "Base",
-  11155111: "Sepolia",
-  1: "Ethereum",
-};
+import { getAgentExplorerUrl, CHAIN_NAMES } from "@/lib/constants";
 
 export default function DashboardPage() {
   const { isConnected, address } = useAccount();
@@ -79,7 +72,8 @@ export default function DashboardPage() {
               ) : (
                 <ul className="mt-4 space-y-3">
                   {agents.map((agent, i) => {
-                    const chainName = CHAIN_NAMES[agent.chainId] ?? `Chain ${agent.chainId}`;
+                    const chainName =
+                      CHAIN_NAMES[agent.chainId] ?? `Chain ${agent.chainId}`;
                     const scanUrl = getAgentExplorerUrl(agent.chainId, agent.agentId);
                     return (
                       <li

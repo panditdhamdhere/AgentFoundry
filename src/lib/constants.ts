@@ -106,6 +106,14 @@ export const SUPPORTED_CHAINS = [
 
 export type SupportedChainId = (typeof SUPPORTED_CHAINS)[number]["id"];
 
+export const CHAIN_BY_ID = Object.fromEntries(
+  SUPPORTED_CHAINS.map((c) => [c.id, c])
+) as Record<number, (typeof SUPPORTED_CHAINS)[number]>;
+
+export const CHAIN_NAMES = Object.fromEntries(
+  SUPPORTED_CHAINS.map((c) => [c.id, c.name])
+) as Record<number, string>;
+
 // ERC-8004 Identity Registry addresses
 export const REGISTRY_ADDRESSES: Record<number, `0x${string}`> = {} as Record<
   number,
@@ -116,27 +124,59 @@ TESTNET_CHAINS.forEach((c) => {
   REGISTRY_ADDRESSES[c.id] = TESTNET_IDENTITY;
 });
 
-/** Block explorer token URL (ERC-721 view) - 8004scan agent pages often 404 */
+/** Token explorer base URLs for ERC-721 view (Etherscan-style: /token/{addr}?a={id}) */
+const TOKEN_EXPLORER_BASES: Record<number, string> = {
+  [baseSepolia.id]: "https://sepolia.basescan.org",
+  [base.id]: "https://basescan.org",
+  [sepolia.id]: "https://sepolia.etherscan.io",
+  [mainnet.id]: "https://etherscan.io",
+  [arbitrumSepolia.id]: "https://sepolia.arbiscan.io",
+  [arbitrum.id]: "https://arbiscan.io",
+  [optimismSepolia.id]: "https://sepolia-optimism.etherscan.io",
+  [optimism.id]: "https://optimistic.etherscan.io",
+  [polygonAmoy.id]: "https://amoy.polygonscan.com",
+  [polygon.id]: "https://polygonscan.com",
+  [avalancheFuji.id]: "https://testnet.snowtrace.io",
+  [avalanche.id]: "https://snowtrace.io",
+  [bscTestnet.id]: "https://testnet.bscscan.com",
+  [bsc.id]: "https://bscscan.com",
+  [celoSepolia.id]: "https://sepolia.celoscan.io",
+  [celo.id]: "https://celoscan.io",
+  [gnosis.id]: "https://gnosisscan.io",
+  [lineaSepolia.id]: "https://sepolia.lineascan.build",
+  [linea.id]: "https://lineascan.build",
+  [mantleSepoliaTestnet.id]: "https://sepolia.mantlescan.xyz",
+  [mantle.id]: "https://mantlescan.xyz",
+  [scrollSepolia.id]: "https://sepolia.scrollscan.com",
+  [scroll.id]: "https://scrollscan.com",
+  [metisSepolia.id]: "https://sepolia-explorer.metisdevops.link",
+  [metis.id]: "https://andromeda-explorer.metis.io",
+  [taikoHoodi.id]: "https://hoodi.taikoscan.io",
+  [taiko.id]: "https://taikoscan.io",
+  [xLayerTestnet.id]: "https://www.oklink.com/xlayer-test",
+  [xLayer.id]: "https://www.oklink.com/xlayer",
+  [abstractTestnet.id]: "https://explorer.testnet.abs.xyz",
+  [abstract.id]: "https://explorer.mainnet.abs.xyz",
+  [goat.id]: "https://explorer.goat.network",
+  [megaethTestnet.id]: "https://megaeth-testnet-v2.blockscout.com",
+  [megaeth.id]: "https://megaeth.blockscout.com",
+  [monadTestnet.id]: "https://monad-testnet.socialscan.io",
+  [monad.id]: "https://monadscan.com",
+  [skaleBaseSepoliaTestnet.id]: "https://base-sepolia-testnet-explorer.skalenodes.com",
+  [skaleBase.id]: "https://skale-base-explorer.skalenodes.com",
+  [soneiumMinato.id]: "https://soneium-minato.blockscout.com",
+  [soneium.id]: "https://soneium.blockscout.com",
+  [hederaTestnet.id]: "https://hashscan.io/testnet",
+  [arcTestnet.id]: "https://testnet.arcscan.app",
+};
+
+/** Block explorer token URL (ERC-721 view) */
 export function getAgentExplorerUrl(chainId: number, agentId: string): string {
   const registry = REGISTRY_ADDRESSES[chainId];
   if (!registry) return `https://www.8004scan.io/agents`;
-  const tokenUrls: Record<number, string> = {
-    [baseSepolia.id]: `https://sepolia.basescan.org/token/${registry}?a=${agentId}`,
-    [base.id]: `https://basescan.org/token/${registry}?a=${agentId}`,
-    [sepolia.id]: `https://sepolia.etherscan.io/token/${registry}?a=${agentId}`,
-    [mainnet.id]: `https://etherscan.io/token/${registry}?a=${agentId}`,
-    [arbitrumSepolia.id]: `https://sepolia.arbiscan.io/token/${registry}?a=${agentId}`,
-    [arbitrum.id]: `https://arbiscan.io/token/${registry}?a=${agentId}`,
-    [optimismSepolia.id]: `https://sepolia-optimism.etherscan.io/token/${registry}?a=${agentId}`,
-    [optimism.id]: `https://optimistic.etherscan.io/token/${registry}?a=${agentId}`,
-    [polygonAmoy.id]: `https://amoy.polygonscan.com/token/${registry}?a=${agentId}`,
-    [polygon.id]: `https://polygonscan.com/token/${registry}?a=${agentId}`,
-    [avalancheFuji.id]: `https://testnet.snowtrace.io/token/${registry}?a=${agentId}`,
-    [avalanche.id]: `https://snowtrace.io/token/${registry}?a=${agentId}`,
-    [bscTestnet.id]: `https://testnet.bscscan.com/token/${registry}?a=${agentId}`,
-    [bsc.id]: `https://bscscan.com/token/${registry}?a=${agentId}`,
-  };
-  return tokenUrls[chainId] ?? `https://www.8004scan.io/agents`;
+  const base = TOKEN_EXPLORER_BASES[chainId];
+  if (base) return `${base}/token/${registry}?a=${agentId}`;
+  return `https://www.8004scan.io/agents`;
 }
 MAINNET_CHAINS.forEach((c) => {
   REGISTRY_ADDRESSES[c.id] = MAINNET_IDENTITY;

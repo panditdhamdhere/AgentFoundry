@@ -3,28 +3,22 @@
 import { useAccount } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 
-const CHAINS_TO_CHECK = [84532]; // Base Sepolia
-
 export interface UserAgent {
   chainId: number;
   agentId: string;
 }
 
 async function fetchAgents(address: string): Promise<UserAgent[]> {
-  const all: UserAgent[] = [];
-  for (const chainId of CHAINS_TO_CHECK) {
-    const res = await fetch(
-      `/api/v1/my-agents?address=${encodeURIComponent(address)}&chainId=${chainId}`
+  const res = await fetch(
+    `/api/v1/my-agents?address=${encodeURIComponent(address)}&chainIds=all`
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (data as { error?: string }).error ?? `Failed to fetch agents (${res.status})`
     );
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error((data as { error?: string }).error ?? `Failed to fetch agents (${res.status})`);
-    }
-    if (Array.isArray(data.agents)) {
-      all.push(...data.agents);
-    }
   }
-  return all;
+  return Array.isArray(data.agents) ? data.agents : [];
 }
 
 export function useUserAgents(): {
