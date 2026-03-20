@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { BetaNav } from "@/components/beta-nav";
 
 export function Header() {
   return (
@@ -15,9 +16,18 @@ export function Header() {
             ◈
           </span>
           <span className="prose-heading">AgentFoundry</span>
+          <span className="rounded-full border border-teal-500/30 bg-teal-500/10 px-2 py-0.5 text-xs font-semibold text-teal-400">
+            Beta
+          </span>
         </Link>
 
         <nav className="flex items-center gap-0.5 sm:gap-1">
+          <Link
+            href="/#join-beta"
+            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
+          >
+            Join Beta
+          </Link>
           <Link
             href="/"
             className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
@@ -32,12 +42,7 @@ export function Header() {
           >
             Explore
           </a>
-          <Link
-            href="/register"
-            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
-          >
-            Create
-          </Link>
+          <BetaNav />
           <Link
             href="/feedback"
             className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"

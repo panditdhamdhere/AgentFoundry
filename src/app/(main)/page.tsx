@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { WaitlistForm } from "@/components/waitlist-form";
+import { HeroCTA } from "@/components/hero-cta";
 
 export default function HomePage() {
   return (
@@ -22,20 +23,7 @@ export default function HomePage() {
               agent a portable identity, discoverable endpoints, and composable
               reputation across 40+ chains.
             </p>
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
-              <Link href="/register" className="btn-primary">
-                Create Agent
-                <span className="ml-2 text-teal-200/90">→</span>
-              </Link>
-              <a
-                href="https://www.8004scan.io/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary"
-              >
-                Explore on 8004scan
-              </a>
-            </div>
+            <HeroCTA />
           </div>
         </div>
       </section>
@@ -68,6 +56,21 @@ export default function HomePage() {
                 Three Registries
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Waitlist */}
+      <section id="join-beta" className="section-padding w-full border-b border-zinc-800/60 bg-zinc-950/30">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="prose-heading text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl">
+            Join the Beta
+          </h2>
+          <p className="mt-3 text-zinc-500">
+            Get early access, product updates, and help shape the trustless agent economy.
+          </p>
+          <div className="mt-8">
+            <WaitlistForm />
           </div>
         </div>
       </section>
