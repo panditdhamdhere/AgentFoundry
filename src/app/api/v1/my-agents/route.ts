@@ -6,11 +6,35 @@ import {
   CHAIN_BY_ID,
   SUPPORTED_CHAINS,
 } from "@/lib/constants";
+import { REGISTRY_ABI } from "@/lib/registry";
+import { fetchAgentMetadata, getVerificationStatus } from "@/lib/agent-utils";
 
 function getRpcUrl(chainId: number): string | undefined {
   if (chainId === 84532) return process.env.NODE_RPC_URL_BASE_SEPOLIA;
   if (chainId === 1) return process.env.NODE_RPC_URL_MAINNET;
   return undefined;
+}
+
+async function fetchReputation(
+  chainId: number,
+  agentId: string,
+  request: Request
+): Promise<{ count: number; summaryValue: number }> {
+  try {
+    const url = new URL(request.url);
+    const base = `${url.protocol}//${url.host}`;
+    const res = await fetch(
+      `${base}/api/v1/reputation?agentId=${agentId}&chainId=${chainId}`
+    );
+    if (!res.ok) return { count: 0, summaryValue: 0 };
+    const data = await res.json();
+    return {
+      count: data.count ?? 0,
+      summaryValue: data.summaryValue ?? 0,
+    };
+  } catch {
+    return { count: 0, summaryValue: 0 };
+  }
 }
 
 async function fetchAgentsForChain(
@@ -75,6 +99,12 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const address = searchParams.get("address");
   const chainIdsParam = searchParams.get("chainIds");
+  const includeReputation =
+    searchParams.get("includeReputation") === "1" ||
+    searchParams.get("includeReputation") === "true";
+  const includeVerification =
+    searchParams.get("includeVerification") === "1" ||
+    searchParams.get("includeVerification") === "true";
 
   if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
     return NextResponse.json({ error: "Invalid address" }, { status: 400 });
@@ -102,6 +132,52 @@ export async function GET(request: Request) {
       if (result.status === "fulfilled") {
         agents.push(...result.value);
       }
+    }
+
+    if ((includeReputation || includeVerification) && agents.length > 0) {
+      const withExtras = await Promise.all(
+        agents.map(async (a) => {
+          const [rep, verification] = await Promise.all([
+            includeReputation
+              ? fetchReputation(a.chainId, a.agentId, request)
+              : null,
+            includeVerification
+              ? (async () => {
+                  const chain = CHAIN_BY_ID[a.chainId];
+                  const registry = REGISTRY_ADDRESSES[a.chainId];
+                  if (!chain || !registry) return null;
+                  const rpcUrl = getRpcUrl(a.chainId);
+                  const client = createPublicClient({
+                    chain,
+                    transport: rpcUrl ? http(rpcUrl) : http(),
+                  });
+                  let tokenURI: string | null = null;
+                  try {
+                    const uri = await client.readContract({
+                      address: registry,
+                      abi: REGISTRY_ABI,
+                      functionName: "tokenURI",
+                      args: [BigInt(a.agentId)],
+                    });
+                    if (uri) tokenURI = String(uri);
+                  } catch {
+                    /* ignore */
+                  }
+                  const metadata = tokenURI
+                    ? await fetchAgentMetadata(tokenURI)
+                    : null;
+                  return getVerificationStatus(tokenURI, metadata);
+                })()
+              : null,
+          ]);
+          return {
+            ...a,
+            ...(rep && { reputation: rep }),
+            ...(verification && { verification }),
+          };
+        })
+      );
+      return NextResponse.json({ agents: withExtras });
     }
 
     return NextResponse.json({ agents });

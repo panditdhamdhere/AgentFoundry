@@ -9,6 +9,7 @@ import {
   CHAIN_NAMES,
 } from "@/lib/constants";
 import { CopyButton } from "@/components/copy-button";
+import { VerificationBadge } from "@/components/verification-badge";
 
 interface AgentMetadata {
   name: string;
@@ -27,6 +28,7 @@ interface AgentData {
     summaryValue: number;
     summaryValueDecimals: number;
   };
+  verification?: { uriSet: boolean; schemaValid: boolean };
 }
 
 export default function AgentDetailPage() {
@@ -114,9 +116,19 @@ export default function AgentDetailPage() {
           )}
 
           <div className="p-6">
-            <h1 className="text-xl font-semibold text-zinc-100">
-              {data.metadata?.name ?? `Agent #${agentId}`}
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-semibold text-zinc-100">
+                {data.metadata?.name ?? `Agent #${agentId}`}
+              </h1>
+              {data.verification && (
+                <VerificationBadge
+                  uriSet={data.verification.uriSet}
+                  schemaValid={data.verification.schemaValid}
+                  size="md"
+                  showLabels
+                />
+              )}
+            </div>
             <p className="mt-1 text-sm text-zinc-500">
               {chainName} · Agent #{agentId}
             </p>

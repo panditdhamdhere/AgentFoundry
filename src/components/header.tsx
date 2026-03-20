@@ -34,13 +34,19 @@ export function Header() {
           >
             Home
           </Link>
+          <Link
+            href="/directory"
+            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
+          >
+            Directory
+          </Link>
           <a
             href="https://www.8004scan.io/"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
           >
-            Explore
+            8004scan
           </a>
           <BetaNav />
           <Link

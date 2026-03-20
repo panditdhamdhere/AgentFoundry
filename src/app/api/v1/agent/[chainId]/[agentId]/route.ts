@@ -6,6 +6,7 @@ import {
   isChainSupported,
 } from "@/lib/constants";
 import { REGISTRY_ABI } from "@/lib/registry";
+import { getVerificationStatus } from "@/lib/agent-utils";
 import { env } from "@/lib/env";
 import type { AgentCard } from "@/lib/types";
 
@@ -107,12 +108,18 @@ export async function GET(
       // Reputation fetch failed
     }
 
+    const verification = getVerificationStatus(
+      tokenURI || null,
+      metadata
+    );
+
     return NextResponse.json({
       chainId,
       agentId,
       tokenURI: tokenURI || null,
       metadata,
       reputation,
+      verification,
     });
   } catch (error) {
     console.error("Agent API error:", error);

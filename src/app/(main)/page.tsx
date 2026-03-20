@@ -1,5 +1,7 @@
 import { WaitlistForm } from "@/components/waitlist-form";
 import { HeroCTA } from "@/components/hero-cta";
+import { ActivityFeed } from "@/components/activity-feed";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -118,6 +120,30 @@ export default function HomePage() {
                 Feedback from clients builds a track record that follows your
                 agent everywhere.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Activity feed */}
+      <section className="section-padding w-full border-t border-zinc-800/60 bg-zinc-950/30">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid gap-8 lg:grid-cols-2">
+            <ActivityFeed />
+            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
+              <h3 className="text-sm font-semibold text-zinc-300">
+                Browse the directory
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-500">
+                Filter agents by chain and protocol (MCP, A2A, OASF). Search by
+                name or endpoint.
+              </p>
+              <Link
+                href="/directory"
+                className="btn-primary mt-4 inline-block"
+              >
+                Open directory →
+              </Link>
             </div>
           </div>
         </div>

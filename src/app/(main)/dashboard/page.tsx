@@ -9,6 +9,7 @@ import {
   CHAIN_NAMES,
 } from "@/lib/constants";
 import { CopyButton } from "@/components/copy-button";
+import { VerificationBadge } from "@/components/verification-badge";
 
 export default function DashboardPage() {
   const { isConnected, address } = useAccount();
@@ -92,10 +93,29 @@ export default function DashboardPage() {
                         className="flex flex-col gap-3 rounded-xl border border-zinc-800/80 bg-zinc-900/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                       >
                         <div>
-                          <p className="font-mono text-sm font-medium text-zinc-100">
-                            Agent #{agent.agentId}
+                          <div className="flex items-center gap-2">
+                            <p className="font-mono text-sm font-medium text-zinc-100">
+                              Agent #{agent.agentId}
+                            </p>
+                            {agent.verification && (
+                              <VerificationBadge
+                                uriSet={agent.verification.uriSet}
+                                schemaValid={agent.verification.schemaValid}
+                              />
+                            )}
+                          </div>
+                          <p className="text-xs text-zinc-500">
+                            {chainName}
+                            {agent.reputation && agent.reputation.count > 0 && (
+                              <span className="ml-2 text-teal-400">
+                                · {agent.reputation.count} feedback
+                                {agent.reputation.count !== 1 ? "s" : ""}
+                                {agent.reputation.summaryValue !== 0 && (
+                                  <> (avg: {agent.reputation.summaryValue})</>
+                                )}
+                              </span>
+                            )}
                           </p>
-                          <p className="text-xs text-zinc-500">{chainName}</p>
                           <CopyButton
                             text={identifier}
                             label="Copy identifier"
