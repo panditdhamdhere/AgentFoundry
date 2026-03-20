@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   useAccount,
   useWriteContract,
@@ -14,6 +15,8 @@ import {
   getBlockExplorerUrl,
   isChainSupported,
 } from "@/lib/constants";
+import { buildAgentCard } from "@/lib/agent-card";
+import { AGENT_TEMPLATES } from "@/lib/templates";
 import type { AgentService } from "@/lib/types";
 
 const DEFAULT_IMAGE =
@@ -79,6 +82,14 @@ export function AgentForm({
     hash: setUriHash,
   });
 
+  const applyTemplate = (templateId: string) => {
+    const t = AGENT_TEMPLATES.find((x) => x.id === templateId);
+    if (!t) return;
+    setName(t.name);
+    setDescription(t.formDescription);
+    setServices(t.services.length ? t.services.map((s) => ({ ...s })) : []);
+  };
+
   const addService = () => {
     setServices([...services, { name: "", endpoint: "" }]);
   };
@@ -137,28 +148,14 @@ export function AgentForm({
 
         const { name: n, description: d, imageUri: img, services: svc } = pending;
 
-        const agentCard = {
-          type: "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+        const agentCard = buildAgentCard({
+          chainId,
+          agentId,
           name: n,
           description: d,
           image: img,
-          services: svc
-            .filter((s) => s.name.trim() && s.endpoint.trim())
-            .map((s) => ({
-              name: s.name,
-              endpoint: s.endpoint,
-              ...(s.version ? { version: s.version } : {}),
-            })),
-          registrations: [
-            {
-              agentId: Number(agentId),
-              agentRegistry,
-            },
-          ],
-          supportedTrust: ["reputation"],
-          x402Support: false,
-          active: true,
-        };
+          services: svc,
+        });
 
         const res = await fetch("/api/upload", {
           method: "POST",
@@ -277,14 +274,34 @@ export function AgentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label className="mb-2 block text-sm font-medium text-zinc-300">
+          Template (optional)
+        </label>
+        <select
+          onChange={(e) => applyTemplate(e.target.value)}
+          className="input-base"
+          defaultValue=""
+        >
+          <option value="" disabled>
+            Choose a template...
+          </option>
+          {AGENT_TEMPLATES.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.label} — {t.description}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {error && (
-        <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-4 text-red-400">
+        <div className="rounded-xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-400">
           {error}
         </div>
       )}
 
       {step === "done" && registeredAgentId && registryAddress && explorerUrl && (
-        <div className="rounded-lg border border-green-500/50 bg-green-500/10 p-4 text-green-400">
+        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-400">
           Success! Agent #{registeredAgentId.toString()} registered on{" "}
           {chain?.name || "network"}.{" "}
           <a
@@ -295,61 +312,74 @@ export function AgentForm({
           >
             View on {explorerName}
           </a>
+          {" · "}
+          <Link
+            href={`/feedback?agentId=${registeredAgentId}&chainId=${chainId}`}
+            className="underline hover:text-emerald-300"
+          >
+            Give feedback
+          </Link>
         </div>
       )}
 
       {address && !isSupported && (
-        <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4 text-amber-400">
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-400">
           Switch to an ERC-8004 supported network (Base, Ethereum, Polygon,
           Arbitrum, etc.).
         </div>
       )}
 
       {step === "uploading" && (
-        <div className="rounded-lg border border-teal-500/50 bg-teal-500/10 p-4 text-teal-300">
+        <div className="rounded-xl border border-teal-500/40 bg-teal-500/10 p-4 text-sm text-teal-300">
           Uploading to IPFS...
         </div>
       )}
 
       {(step === "registering" || isRegisterPending || isRegisterConfirming) && (
-        <div className="rounded-lg border border-teal-500/50 bg-teal-500/10 p-4 text-teal-300">
+        <div className="rounded-xl border border-teal-500/40 bg-teal-500/10 p-4 text-sm text-teal-300">
           Confirm the transaction in your wallet to register on-chain...
         </div>
       )}
 
       {(step === "setting-uri" || isSetUriPending) && (
-        <div className="rounded-lg border border-teal-500/50 bg-teal-500/10 p-4 text-teal-300">
+        <div className="rounded-xl border border-teal-500/40 bg-teal-500/10 p-4 text-sm text-teal-300">
           Setting agent URI... Confirm the second transaction.
         </div>
       )}
 
       <div>
-        <label className="mb-2 block text-sm font-medium">Agent Name *</label>
+        <label className="mb-2 block text-sm font-medium text-zinc-300">
+          Agent Name *
+        </label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="My AI Agent"
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-2 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="input-base"
           required
         />
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium">Description *</label>
+        <label className="mb-2 block text-sm font-medium text-zinc-300">
+          Description *
+        </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="What does your agent do?"
           rows={3}
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-2 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="input-base resize-none"
           required
         />
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium">Image</label>
-        <div className="space-y-2">
+        <label className="mb-2 block text-sm font-medium text-zinc-300">
+          Image
+        </label>
+        <div className="space-y-3">
           <input
             type="file"
             accept="image/*"
@@ -358,7 +388,7 @@ export function AgentForm({
               setImageFile(f ?? null);
               if (!f) setImage("");
             }}
-            className="block w-full text-sm text-zinc-400 file:mr-4 file:rounded file:border-0 file:bg-teal-600 file:px-4 file:py-2 file:text-sm file:text-white"
+            className="block w-full text-sm text-zinc-400 file:mr-4 file:rounded-lg file:border-0 file:bg-teal-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white file:transition-colors hover:file:bg-teal-500"
           />
           <span className="text-xs text-zinc-500">Or paste an image URL:</span>
           <input
@@ -369,20 +399,20 @@ export function AgentForm({
               setImageFile(null);
             }}
             placeholder="https://... or ipfs://..."
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-2 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="input-base"
           />
         </div>
       </div>
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-sm font-medium">
+          <label className="text-sm font-medium text-zinc-300">
             Services (MCP, A2A, web, etc.)
           </label>
           <button
             type="button"
             onClick={addService}
-            className="text-sm text-teal-400 hover:underline"
+            className="text-sm font-medium text-teal-400 transition-colors hover:text-teal-300"
           >
             + Add
           </button>
@@ -395,19 +425,19 @@ export function AgentForm({
                 placeholder="Name (e.g. MCP)"
                 value={s.name}
                 onChange={(e) => updateService(i, "name", e.target.value)}
-                className="flex-1 rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-2 text-sm focus:border-teal-500 focus:outline-none"
+                className="input-base flex-1 text-sm"
               />
               <input
                 type="url"
                 placeholder="Endpoint URL"
                 value={s.endpoint}
                 onChange={(e) => updateService(i, "endpoint", e.target.value)}
-                className="flex-[2] rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-2 text-sm focus:border-teal-500 focus:outline-none"
+                className="input-base flex-[2] text-sm"
               />
               <button
                 type="button"
                 onClick={() => removeService(i)}
-                className="rounded-lg px-3 text-red-400 hover:bg-red-500/10"
+                className="rounded-lg px-3 py-2 text-red-400 transition-colors hover:bg-red-500/10"
               >
                 ×
               </button>
@@ -419,7 +449,7 @@ export function AgentForm({
       <button
         type="submit"
         disabled={!address || !isSupported || isProcessing}
-        className="w-full rounded-lg bg-teal-600 py-3 font-semibold text-white transition-colors hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="btn-primary w-full py-3 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-teal-600"
       >
         {step === "done" ? "Registered!" : "Register Agent"}
       </button>

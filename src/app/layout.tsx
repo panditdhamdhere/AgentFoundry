@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { AnimatedBackground } from "@/components/animated-background";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Agent Registry | ERC-8004 AI Agent Registration",
+  title: "AgentFoundry | Register AI Agents On-Chain",
   description:
-    "Register your AI agents on-chain with ERC-8004. No-code agent registration for the trustless agent economy.",
+    "No-code ERC-8004 agent registration. Give your AI agent portable identity, discoverable endpoints, and composable reputation across 40+ chains.",
 };
 
 export default function RootLayout({
@@ -30,16 +30,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${plusJakarta.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         <Providers>
           <AnimatedBackground />
-          <Header />
-          <main className="flex min-h-[calc(100vh-theme(spacing.14))] flex-1 flex-col">
-            {children}
-          </main>
-          <Footer />
+          {children}
         </Providers>
       </body>
     </html>

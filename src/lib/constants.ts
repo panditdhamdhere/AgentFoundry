@@ -44,9 +44,12 @@ import {
 } from "viem/chains";
 
 // All ERC-8004 deployed chains - from https://github.com/erc-8004/erc-8004-contracts
-// Mainnets: 0x8004A169..., Testnets: 0x8004A818...
-const MAINNET_REGISTRY = "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432" as const;
-const TESTNET_REGISTRY = "0x8004A818BFB912233c491871b3d84c89A494BD9e" as const;
+// Identity: Mainnets 0x8004A169..., Testnets 0x8004A818...
+const MAINNET_IDENTITY = "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432" as const;
+const TESTNET_IDENTITY = "0x8004A818BFB912233c491871b3d84c89A494BD9e" as const;
+// Reputation: Mainnets 0x8004BAa1..., Testnets 0x8004B663...
+const MAINNET_REPUTATION = "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63" as const;
+const TESTNET_REPUTATION = "0x8004B663056A597Dffe9eCcC1965A193B7388713" as const;
 
 const TESTNET_CHAINS = [
   baseSepolia,
@@ -110,10 +113,22 @@ export const REGISTRY_ADDRESSES: Record<number, `0x${string}`> = {} as Record<
 >;
 
 TESTNET_CHAINS.forEach((c) => {
-  REGISTRY_ADDRESSES[c.id] = TESTNET_REGISTRY;
+  REGISTRY_ADDRESSES[c.id] = TESTNET_IDENTITY;
 });
 MAINNET_CHAINS.forEach((c) => {
-  REGISTRY_ADDRESSES[c.id] = MAINNET_REGISTRY;
+  REGISTRY_ADDRESSES[c.id] = MAINNET_IDENTITY;
+});
+
+// ERC-8004 Reputation Registry addresses
+export const REPUTATION_REGISTRY_ADDRESSES: Record<number, `0x${string}`> = {} as Record<
+  number,
+  `0x${string}`
+>;
+TESTNET_CHAINS.forEach((c) => {
+  REPUTATION_REGISTRY_ADDRESSES[c.id] = TESTNET_REPUTATION;
+});
+MAINNET_CHAINS.forEach((c) => {
+  REPUTATION_REGISTRY_ADDRESSES[c.id] = MAINNET_REPUTATION;
 });
 
 // Block explorer URLs for contract/address views

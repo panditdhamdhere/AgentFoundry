@@ -9,71 +9,68 @@
   --ring: #14b8a6;
   --accent: #14b8a6;
   --accent-foreground: #0f766e;
+  --card: #18181b;
+  --card-foreground: #fafafa;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
 
   --animate-blob: blob 8s ease-in-out infinite;
   --animate-blob-slow: blob-slow 14s ease-in-out infinite;
 
   @keyframes blob {
-    0%,
-    100% {
-      transform: translate(0, 0) scale(1);
-    }
-    25% {
-      transform: translate(20px, -50px) scale(1.1);
-    }
-    50% {
-      transform: translate(-20px, 20px) scale(0.9);
-    }
-    75% {
-      transform: translate(50px, 30px) scale(1.05);
-    }
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(20px, -50px) scale(1.1); }
+    50% { transform: translate(-20px, 20px) scale(0.9); }
+    75% { transform: translate(50px, 30px) scale(1.05); }
   }
 
   @keyframes blob-slow {
-    0%,
-    100% {
-      transform: translate(0, 0) scale(1);
-    }
-    33% {
-      transform: translate(-30px, -30px) scale(1.08);
-    }
-    66% {
-      transform: translate(30px, 20px) scale(0.95);
-    }
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-30px, -30px) scale(1.08); }
+    66% { transform: translate(30px, 20px) scale(0.95); }
   }
 
   --animate-float: float 10s ease-in-out infinite;
 
   @keyframes float {
-    0%,
-    100% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0.3;
-    }
-    25% {
-      transform: translate(10px, -20px) scale(1.2);
-      opacity: 0.5;
-    }
-    50% {
-      transform: translate(-15px, 10px) scale(0.9);
-      opacity: 0.4;
-    }
-    75% {
-      transform: translate(20px, 15px) scale(1.1);
-      opacity: 0.35;
-    }
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+    25% { transform: translate(10px, -20px) scale(1.2); opacity: 0.5; }
+    50% { transform: translate(-15px, 10px) scale(0.9); opacity: 0.4; }
+    75% { transform: translate(20px, 15px) scale(1.1); opacity: 0.35; }
   }
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  letter-spacing: -0.011em;
+}
+
+/* Professional form inputs */
+.input-base {
+  @apply w-full rounded-lg border border-zinc-700/80 bg-zinc-900/50 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 transition-colors;
+  @apply focus:border-teal-500/80 focus:outline-none focus:ring-2 focus:ring-teal-500/20;
+}
+
+/* Professional buttons */
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-lg bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-teal-500/20 transition-all;
+  @apply hover:bg-teal-500 hover:shadow-teal-500/25 active:scale-[0.98];
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-lg border border-zinc-600 bg-zinc-800/50 px-5 py-2.5 text-sm font-medium text-zinc-200 transition-all;
+  @apply hover:border-zinc-500 hover:bg-zinc-800;
 }
