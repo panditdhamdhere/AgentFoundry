@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { uploadAgentCard } from "@/lib/ipfs";
 import { buildAgentCard } from "@/lib/agent-card";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { checkApiAuth } from "@/lib/api-auth";
 
 const AgentServiceSchema = z.object({
   name: z.string().min(1),
@@ -28,6 +30,25 @@ const BodySchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const auth = checkApiAuth(request);
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: "Missing or invalid x-api-key header" },
+      { status: 401 }
+    );
+  }
+  const rate = checkRateLimit(request);
+  if (!rate.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      {
+        status: 429,
+        headers: rate.retryAfter
+          ? { "Retry-After": String(rate.retryAfter) }
+          : undefined,
+      }
+    );
+  }
   try {
     const body = await request.json();
     const parsed = BodySchema.safeParse(body);

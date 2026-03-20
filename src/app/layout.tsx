@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Sora, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { AnimatedBackground } from "@/components/animated-background";
 import "./globals.css";
+import "../../sentry.client.config";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-sans",

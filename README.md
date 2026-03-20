@@ -36,11 +36,13 @@ No-code ERC-8004 AI agent registration. Register your AI agents on-chain with a 
    cp .env.example .env.local
    ```
 
-   Fill in:
+   Fill in (all required for production):
 
    - `PINATA_JWT` — From [Pinata](https://pinata.cloud/) API keys
    - `PINATA_GATEWAY` — Your Pinata gateway domain (e.g. `your-gateway.mypinata.cloud`)
    - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` — From [WalletConnect Cloud](https://cloud.walletconnect.com/)
+
+   In production, missing vars will cause startup/runtime errors.
 
 3. **Get testnet ETH** (for Base Sepolia / Sepolia)
 

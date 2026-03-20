@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { uploadImage } from "@/lib/ipfs";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { checkApiAuth } from "@/lib/api-auth";
 
 /**
  * POST /api/v1/upload
@@ -8,6 +10,25 @@ import { uploadImage } from "@/lib/ipfs";
  * Form field: file (required)
  */
 export async function POST(request: Request) {
+  const auth = checkApiAuth(request);
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: "Missing or invalid x-api-key header" },
+      { status: 401 }
+    );
+  }
+  const rate = checkRateLimit(request);
+  if (!rate.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      {
+        status: 429,
+        headers: rate.retryAfter
+          ? { "Retry-After": String(rate.retryAfter) }
+          : undefined,
+      }
+    );
+  }
   try {
     const contentType = request.headers.get("content-type") || "";
 

@@ -1,8 +1,21 @@
 import { NextResponse } from "next/server";
 import { uploadAgentCard, uploadImage } from "@/lib/ipfs";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { AgentCard } from "@/lib/types";
 
 export async function POST(request: Request) {
+  const rate = checkRateLimit(request);
+  if (!rate.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      {
+        status: 429,
+        headers: rate.retryAfter
+          ? { "Retry-After": String(rate.retryAfter) }
+          : undefined,
+      }
+    );
+  }
   try {
     const contentType = request.headers.get("content-type") || "";
 

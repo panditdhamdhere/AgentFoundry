@@ -1,17 +1,11 @@
 import { PinataSDK } from "pinata";
+import { ensurePinataConfig } from "./env";
 import type { AgentCard } from "./types";
 
 export async function uploadAgentCard(
   agentCard: AgentCard
 ): Promise<{ cid: string; ipfsUri: string }> {
-  const pinataJwt = process.env.PINATA_JWT;
-  const pinataGateway = process.env.PINATA_GATEWAY;
-
-  if (!pinataJwt || !pinataGateway) {
-    throw new Error(
-      "Missing PINATA_JWT or PINATA_GATEWAY. Add them to your .env.local"
-    );
-  }
+  const { jwt: pinataJwt, gateway: pinataGateway } = ensurePinataConfig();
 
   const pinata = new PinataSDK({
     pinataJwt,
@@ -31,14 +25,7 @@ export async function uploadAgentCard(
 }
 
 export async function uploadImage(file: File): Promise<{ cid: string; ipfsUri: string }> {
-  const pinataJwt = process.env.PINATA_JWT;
-  const pinataGateway = process.env.PINATA_GATEWAY;
-
-  if (!pinataJwt || !pinataGateway) {
-    throw new Error(
-      "Missing PINATA_JWT or PINATA_GATEWAY. Add them to your .env.local"
-    );
-  }
+  const { jwt: pinataJwt, gateway: pinataGateway } = ensurePinataConfig();
 
   const pinata = new PinataSDK({
     pinataJwt,
