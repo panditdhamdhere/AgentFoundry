@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { useAccount } from "wagmi";
 import Link from "next/link";
 import { useUserAgents } from "@/hooks/use-user-agents";
@@ -7,6 +8,7 @@ import {
   getAgentExplorerUrl,
   getErc8004Identifier,
   CHAIN_NAMES,
+  SUPPORTED_CHAINS,
 } from "@/lib/constants";
 import { CopyButton } from "@/components/copy-button";
 import { VerificationBadge } from "@/components/verification-badge";
@@ -14,6 +16,17 @@ import { VerificationBadge } from "@/components/verification-badge";
 export default function DashboardPage() {
   const { isConnected, address } = useAccount();
   const { agents, isLoading, isFetching, error, refetch } = useUserAgents();
+  const [chainFilter, setChainFilter] = useState<number | "all">("all");
+
+  const filteredAgents = useMemo(() => {
+    if (chainFilter === "all") return agents;
+    return agents.filter((a) => a.chainId === chainFilter);
+  }, [agents, chainFilter]);
+
+  const chainsWithAgents = useMemo(() => {
+    const ids = new Set(agents.map((a) => a.chainId));
+    return SUPPORTED_CHAINS.filter((c) => ids.has(c.id));
+  }, [agents]);
 
   return (
     <div className="section-padding w-full">
@@ -44,18 +57,40 @@ export default function DashboardPage() {
             </div>
 
             <div className="card-base p-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-4">
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Your Agents
                 </h2>
-                <button
-                  type="button"
-                  onClick={() => refetch()}
-                  disabled={isLoading || isFetching}
-                  className="text-xs font-medium text-teal-400 hover:text-teal-300 disabled:opacity-50"
-                >
-                  {isLoading ? "Loading…" : isFetching ? "Refreshing…" : "Refresh"}
-                </button>
+                <div className="flex items-center gap-2">
+                  {agents.length > 0 && (
+                    <select
+                      value={chainFilter}
+                      onChange={(e) =>
+                        setChainFilter(
+                          e.target.value === "all"
+                            ? "all"
+                            : parseInt(e.target.value, 10)
+                        )
+                      }
+                      className="rounded-lg border border-zinc-700/80 bg-zinc-900/60 px-3 py-1.5 text-sm text-zinc-300 focus:border-teal-500/50 focus:outline-none"
+                    >
+                      <option value="all">All chains</option>
+                      {chainsWithAgents.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => refetch()}
+                    disabled={isLoading || isFetching}
+                    className="text-xs font-medium text-teal-400 hover:text-teal-300 disabled:opacity-50"
+                  >
+                    {isLoading ? "Loading…" : isFetching ? "Refreshing…" : "Refresh"}
+                  </button>
+                </div>
               </div>
 
               {error && (
@@ -66,18 +101,23 @@ export default function DashboardPage() {
 
               {isLoading ? (
                 <p className="mt-4 text-sm text-zinc-500">Loading agents…</p>
-              ) : agents.length === 0 ? (
+              ) : filteredAgents.length === 0 ? (
                 <div className="mt-6 rounded-xl border border-dashed border-zinc-700/60 bg-zinc-900/20 p-8 text-center">
                   <p className="text-zinc-500">
-                    No agents yet. Register one to get started.
+                    {agents.length === 0
+                      ? "No agents yet. Register one to get started."
+                      : `No agents on ${chainFilter === "all" ? "any chain" : CHAIN_NAMES[chainFilter] ?? "selected chain"}.`}
                   </p>
-                  <Link href="/register" className="btn-primary mt-4 inline-block">
-                    Create your first agent
+                  <Link
+                    href="/register"
+                    className="btn-primary mt-4 inline-block"
+                  >
+                    {agents.length === 0 ? "Create your first agent" : "Create agent"}
                   </Link>
                 </div>
               ) : (
                 <ul className="mt-4 space-y-3">
-                  {agents.map((agent, i) => {
+                  {filteredAgents.map((agent, i) => {
                     const chainName =
                       CHAIN_NAMES[agent.chainId] ?? `Chain ${agent.chainId}`;
                     const scanUrl = getAgentExplorerUrl(agent.chainId, agent.agentId);

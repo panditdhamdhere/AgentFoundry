@@ -57,13 +57,24 @@ export async function GET(
     });
 
     let tokenURI = "";
+    let owner: string | null = null;
     try {
-      tokenURI = await client.readContract({
-        address: registry,
-        abi: REGISTRY_ABI,
-        functionName: "tokenURI",
-        args: [BigInt(agentId)],
-      });
+      const [uriResult, ownerResult] = await Promise.all([
+        client.readContract({
+          address: registry,
+          abi: REGISTRY_ABI,
+          functionName: "tokenURI",
+          args: [BigInt(agentId)],
+        }),
+        client.readContract({
+          address: registry,
+          abi: REGISTRY_ABI,
+          functionName: "ownerOf",
+          args: [BigInt(agentId)],
+        }).catch(() => null),
+      ]);
+      tokenURI = typeof uriResult === "string" ? uriResult : "";
+      owner = ownerResult ? String(ownerResult) : null;
     } catch {
       // tokenURI may not be set or contract may use different interface
     }
@@ -116,6 +127,7 @@ export async function GET(
     return NextResponse.json({
       chainId,
       agentId,
+      owner: owner ?? null,
       tokenURI: tokenURI || null,
       metadata,
       reputation,

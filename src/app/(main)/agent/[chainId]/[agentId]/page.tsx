@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useAccount } from "wagmi";
 import {
   getAgentExplorerUrl,
   getErc8004Identifier,
@@ -10,6 +11,8 @@ import {
 } from "@/lib/constants";
 import { CopyButton } from "@/components/copy-button";
 import { VerificationBadge } from "@/components/verification-badge";
+import { EditAgentForm } from "@/components/edit-agent-form";
+import { TransferAgentForm } from "@/components/transfer-agent-form";
 
 interface AgentMetadata {
   name: string;
@@ -21,6 +24,7 @@ interface AgentMetadata {
 interface AgentData {
   chainId: number;
   agentId: string;
+  owner: string | null;
   tokenURI: string | null;
   metadata: AgentMetadata | null;
   reputation: {
@@ -33,9 +37,12 @@ interface AgentData {
 
 export default function AgentDetailPage() {
   const params = useParams();
+  const { address } = useAccount();
   const chainId = Number(params.chainId);
   const agentId = String(params.agentId);
   const [data, setData] = useState<AgentData | null>(null);
+  const [showEdit, setShowEdit] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -81,6 +88,10 @@ export default function AgentDetailPage() {
   const scanUrl = getAgentExplorerUrl(chainId, agentId);
   const feedbackUrl = `/feedback?agentId=${agentId}&chainId=${chainId}`;
   const identifier = getErc8004Identifier(chainId, agentId);
+  const isOwner =
+    !!address &&
+    !!data.owner &&
+    address.toLowerCase() === data.owner.toLowerCase();
   const shareableUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/agent/${chainId}/${agentId}`
@@ -211,6 +222,69 @@ export default function AgentDetailPage() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {/* Owner actions: Edit & Transfer */}
+            {isOwner && (
+              <div className="mt-8 space-y-4">
+                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowEdit(!showEdit)}
+                    className="flex w-full items-center justify-between text-left text-sm font-medium text-zinc-300"
+                  >
+                    Edit metadata
+                    <span className="text-zinc-500">{showEdit ? "−" : "+"}</span>
+                  </button>
+                  {showEdit && (
+                    <div className="mt-4 pt-4 border-t border-zinc-800/80">
+                      <EditAgentForm
+                        chainId={chainId}
+                        agentId={agentId}
+                        initialName={data.metadata?.name ?? ""}
+                        initialDescription={data.metadata?.description ?? ""}
+                        initialImage={data.metadata?.image ?? ""}
+                        initialServices={
+                          data.metadata?.services?.map((s) => ({
+                            name: s.name,
+                            endpoint: s.endpoint,
+                            version: s.version,
+                          })) ?? []
+                        }
+                        onSuccess={() =>
+                          fetch(`/api/v1/agent/${chainId}/${agentId}`)
+                            .then((r) => r.json())
+                            .then(setData)
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowTransfer(!showTransfer)}
+                    className="flex w-full items-center justify-between text-left text-sm font-medium text-zinc-300"
+                  >
+                    Transfer ownership
+                    <span className="text-zinc-500">{showTransfer ? "−" : "+"}</span>
+                  </button>
+                  {showTransfer && data.owner && (
+                    <div className="mt-4 pt-4 border-t border-zinc-800/80">
+                      <TransferAgentForm
+                        chainId={chainId}
+                        agentId={agentId}
+                        ownerAddress={data.owner}
+                        onSuccess={() =>
+                          fetch(`/api/v1/agent/${chainId}/${agentId}`)
+                            .then((r) => r.json())
+                            .then(setData)
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
