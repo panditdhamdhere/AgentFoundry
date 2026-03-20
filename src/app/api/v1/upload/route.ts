@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       { status: 401 }
     );
   }
-  const rate = checkRateLimit(request);
+  const rate = await checkRateLimit(request);
   if (!rate.ok) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },

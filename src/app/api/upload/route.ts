@@ -4,7 +4,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import type { AgentCard } from "@/lib/types";
 
 export async function POST(request: Request) {
-  const rate = checkRateLimit(request);
+  const rate = await checkRateLimit(request);
   if (!rate.ok) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
