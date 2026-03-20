@@ -13,10 +13,10 @@ export function ChainBadge() {
 
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
+      className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold ${
         supported
-          ? "border border-teal-500/30 bg-teal-500/10 text-teal-400"
-          : "border border-amber-500/30 bg-amber-500/10 text-amber-400"
+          ? "border border-teal-500/25 bg-teal-500/10 text-teal-400"
+          : "border border-amber-500/25 bg-amber-500/10 text-amber-400"
       }`}
     >
       <span

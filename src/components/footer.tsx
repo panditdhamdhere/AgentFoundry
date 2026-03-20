@@ -2,28 +2,28 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950/60">
-      <div className="w-full px-4 py-12 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
-          <div>
+    <footer className="mt-auto border-t border-zinc-800/70 bg-zinc-950/50">
+      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-12 sm:flex-row sm:items-start sm:justify-between">
+          <div className="max-w-sm">
             <Link
               href="/"
-              className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-zinc-50"
+              className="flex items-center gap-3 text-lg font-semibold tracking-tight text-zinc-50"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500/90 to-teal-600/90 text-white shadow-lg shadow-teal-500/20">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500/90 to-teal-600/90 text-white shadow-lg shadow-teal-500/25">
                 ◈
               </span>
-              AgentFoundry
+              <span className="prose-heading">AgentFoundry</span>
             </Link>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-zinc-500">
+            <p className="mt-4 text-sm leading-relaxed text-zinc-500">
               No-code ERC-8004 registration. Give your AI agent portable identity,
               discoverable endpoints, and composable reputation across 40+ chains.
             </p>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-3">
+          <div className="grid gap-10 sm:grid-cols-3">
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
                 Product
               </h4>
               <ul className="mt-4 space-y-3">
@@ -43,11 +43,19 @@ export function Footer() {
                     Dashboard
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/embed"
+                    className="text-sm text-zinc-500 transition-colors hover:text-teal-400"
+                  >
+                    Embed
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                ERC-8004 Ecosystem
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+                ERC-8004
               </h4>
               <ul className="mt-4 space-y-3">
                 <li>
@@ -83,10 +91,18 @@ export function Footer() {
               </ul>
             </div>
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
                 Resources
               </h4>
               <ul className="mt-4 space-y-3">
+                <li>
+                  <Link
+                    href="/docs"
+                    className="text-sm text-zinc-500 transition-colors hover:text-teal-400"
+                  >
+                    API Docs
+                  </Link>
+                </li>
                 <li>
                   <a
                     href="https://eips.ethereum.org/EIPS/eip-8004"
@@ -112,7 +128,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-zinc-800/80 pt-8 sm:flex-row">
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-zinc-800/70 pt-8 sm:flex-row">
           <p className="text-xs text-zinc-600">
             Multi-chain · Part of the ERC-8004 Trustless Agents ecosystem
           </p>

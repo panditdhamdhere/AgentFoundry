@@ -9,7 +9,7 @@ export default function MainLayout({
   return (
     <>
       <Header />
-      <main className="flex min-h-[calc(100vh-theme(spacing.14))] flex-1 flex-col">
+      <main className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col">
         {children}
       </main>
       <Footer />

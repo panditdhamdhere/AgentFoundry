@@ -5,22 +5,22 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl">
-      <div className="flex h-14 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/70 bg-zinc-950/95 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-zinc-50"
+          className="flex items-center gap-3 text-lg font-semibold tracking-tight text-zinc-50 transition-opacity hover:opacity-90"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500/90 to-teal-600/90 text-white shadow-lg shadow-teal-500/20">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500/90 to-teal-600/90 text-white shadow-lg shadow-teal-500/25">
             ◈
           </span>
-          <span>AgentFoundry</span>
+          <span className="prose-heading">AgentFoundry</span>
         </Link>
 
-        <nav className="flex items-center gap-1 sm:gap-2">
+        <nav className="flex items-center gap-0.5 sm:gap-1">
           <Link
             href="/"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
+            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
           >
             Home
           </Link>
@@ -28,25 +28,25 @@ export function Header() {
             href="https://www.8004scan.io/"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
+            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
           >
             Explore
           </a>
           <Link
             href="/register"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
+            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
           >
             Create
           </Link>
           <Link
             href="/feedback"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
+            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
           >
             Feedback
           </Link>
           <Link
             href="/docs"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
+            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
           >
             Docs
           </Link>
@@ -54,11 +54,11 @@ export function Header() {
             href="https://eips.ethereum.org/EIPS/eip-8004"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100 sm:block"
+            className="hidden rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100 sm:block"
           >
-            Docs
+            Spec
           </a>
-          <div className="ml-2">
+          <div className="ml-3">
             <ConnectButton />
           </div>
         </nav>
