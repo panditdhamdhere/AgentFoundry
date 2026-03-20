@@ -191,7 +191,7 @@ This is currently repo-internal (not published as a standalone npm package).
 ## 9) Current Limitations / Known Gaps
 
 - Dashboard agent discovery currently focused on Base Sepolia path.
-- 8004scan deep-linking was unreliable; explorer links now point to chain explorers.
+- Explorer links use chain-specific block explorers (BaseScan, Etherscan, etc.) for reliable token views; 8004scan single-agent deep links are not yet available.
 - Reputation and validation UX is still evolving relative to full ERC-8004 breadth.
 - For high-scale production, ensure dedicated RPC + Upstash are configured.
 

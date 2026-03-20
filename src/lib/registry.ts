@@ -34,6 +34,13 @@ export const REGISTRY_ABI = [
     type: "function",
   },
   {
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    name: "tokenURI",
+    outputs: [{ name: "", type: "string" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     anonymous: false,
     inputs: [
       { indexed: true, name: "agentId", type: "uint256" },

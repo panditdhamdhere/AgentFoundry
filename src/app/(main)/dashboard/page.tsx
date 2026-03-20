@@ -3,7 +3,12 @@
 import { useAccount } from "wagmi";
 import Link from "next/link";
 import { useUserAgents } from "@/hooks/use-user-agents";
-import { getAgentExplorerUrl, CHAIN_NAMES } from "@/lib/constants";
+import {
+  getAgentExplorerUrl,
+  getErc8004Identifier,
+  CHAIN_NAMES,
+} from "@/lib/constants";
+import { CopyButton } from "@/components/copy-button";
 
 export default function DashboardPage() {
   const { isConnected, address } = useAccount();
@@ -75,25 +80,50 @@ export default function DashboardPage() {
                     const chainName =
                       CHAIN_NAMES[agent.chainId] ?? `Chain ${agent.chainId}`;
                     const scanUrl = getAgentExplorerUrl(agent.chainId, agent.agentId);
+                    const feedbackUrl = `/feedback?agentId=${agent.agentId}&chainId=${agent.chainId}`;
+                    const detailUrl = `/agent/${agent.chainId}/${agent.agentId}`;
+                    const identifier = getErc8004Identifier(
+                      agent.chainId,
+                      agent.agentId
+                    );
                     return (
                       <li
                         key={`${agent.chainId}-${agent.agentId}-${i}`}
-                        className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/40 px-4 py-3"
+                        className="flex flex-col gap-3 rounded-xl border border-zinc-800/80 bg-zinc-900/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                       >
                         <div>
                           <p className="font-mono text-sm font-medium text-zinc-100">
                             Agent #{agent.agentId}
                           </p>
                           <p className="text-xs text-zinc-500">{chainName}</p>
+                          <CopyButton
+                            text={identifier}
+                            label="Copy identifier"
+                            className="mt-1.5 text-xs font-medium text-zinc-500 hover:text-teal-400"
+                          />
                         </div>
-                        <a
-                          href={scanUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-secondary text-sm"
-                        >
-                          View on Explorer →
-                        </a>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Link
+                            href={detailUrl}
+                            className="btn-secondary text-sm"
+                          >
+                            View details
+                          </Link>
+                          <Link
+                            href={feedbackUrl}
+                            className="rounded-lg border border-zinc-700/80 bg-zinc-800/40 px-3 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-700/60 hover:text-zinc-100"
+                          >
+                            Give feedback
+                          </Link>
+                          <a
+                            href={scanUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-secondary text-sm"
+                          >
+                            Explorer →
+                          </a>
+                        </div>
                       </li>
                     );
                   })}

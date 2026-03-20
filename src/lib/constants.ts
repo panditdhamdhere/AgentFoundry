@@ -389,3 +389,14 @@ export const DEFAULT_CHAIN = baseSepolia;
 export function isChainSupported(chainId: number): boolean {
   return chainId in REGISTRY_ADDRESSES;
 }
+
+/** ERC-8004 agent identifier: eip155:chainId:registryAddress:agentId */
+export function getErc8004Identifier(
+  chainId: number,
+  agentId: string,
+  registry?: `0x${string}`
+): string {
+  const reg = registry ?? REGISTRY_ADDRESSES[chainId];
+  if (!reg) return `eip155:${chainId}:${agentId}`;
+  return `eip155:${chainId}:${reg}:${agentId}`;
+}
