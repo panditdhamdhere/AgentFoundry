@@ -59,12 +59,12 @@ export function SiweButton() {
   if (!address) return null;
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="flex flex-col gap-1">
       <button
         type="button"
         onClick={handleSignIn}
         disabled={loading}
-        className="text-xs font-medium text-teal-400 hover:text-teal-300 disabled:opacity-50"
+        className="w-full text-left text-sm font-medium text-zinc-300 hover:text-teal-400 disabled:opacity-50"
       >
         {loading ? "Signing…" : "Sign in with Ethereum"}
       </button>

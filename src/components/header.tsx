@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { BetaNav } from "@/components/beta-nav";
-import { SiweButton } from "@/components/siwe-button";
+import { ExploreDropdown } from "@/components/explore-dropdown";
 
 export function Header() {
   return (
@@ -24,12 +24,6 @@ export function Header() {
 
         <nav className="flex items-center gap-0.5 sm:gap-1">
           <Link
-            href="/#join-beta"
-            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
-          >
-            Join Beta
-          </Link>
-          <Link
             href="/"
             className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
           >
@@ -41,20 +35,6 @@ export function Header() {
           >
             Directory
           </Link>
-          <Link
-            href="/mcp"
-            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
-          >
-            MCP
-          </Link>
-          <a
-            href="https://www.8004scan.io/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
-          >
-            8004scan
-          </a>
           <BetaNav />
           <Link
             href="/feedback"
@@ -68,16 +48,8 @@ export function Header() {
           >
             Docs
           </Link>
-          <a
-            href="https://eips.ethereum.org/EIPS/eip-8004"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100 sm:block"
-          >
-            Spec
-          </a>
-          <div className="ml-3 flex items-center gap-3">
-            <SiweButton />
+          <ExploreDropdown />
+          <div className="ml-2">
             <ConnectButton />
           </div>
         </nav>
