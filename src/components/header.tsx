@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { BetaNav } from "@/components/beta-nav";
+import { SiweButton } from "@/components/siwe-button";
 
 export function Header() {
   return (
@@ -40,6 +41,12 @@ export function Header() {
           >
             Directory
           </Link>
+          <Link
+            href="/mcp"
+            className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-100"
+          >
+            MCP
+          </Link>
           <a
             href="https://www.8004scan.io/"
             target="_blank"
@@ -69,7 +76,8 @@ export function Header() {
           >
             Spec
           </a>
-          <div className="ml-3">
+          <div className="ml-3 flex items-center gap-3">
+            <SiweButton />
             <ConnectButton />
           </div>
         </nav>

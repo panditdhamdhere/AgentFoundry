@@ -72,6 +72,28 @@ export default function DocsPage() {
                   Get reputation summary for an agent.
                 </p>
               </div>
+
+              <div className="card-base p-5">
+                <h3 className="font-mono text-sm font-semibold text-teal-400">
+                  GET /api/v1/mcp-discovery?chainId=84532
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                  List agents with MCP endpoints for Model Context Protocol clients.
+                </p>
+              </div>
+
+              <div className="card-base p-5">
+                <h3 className="font-mono text-sm font-semibold text-teal-400">
+                  POST /api/v1/webhooks
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                  Register a webhook URL for events: registration, uri_update,
+                  feedback. Requires API key when configured.
+                </p>
+                <pre className="mt-3 overflow-x-auto rounded-lg bg-zinc-950 p-3 text-xs text-zinc-300">
+                  {`{ "url": "https://your-server.com/webhook", "events": ["registration", "uri_update", "feedback"] }`}
+                </pre>
+              </div>
             </div>
           </section>
 

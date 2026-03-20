@@ -7,6 +7,7 @@ import {
   REGISTRY_ADDRESSES,
   isChainSupported,
 } from "@/lib/constants";
+import { emitEvent } from "@/lib/emit-event";
 import { REPUTATION_ABI } from "@/lib/reputation-registry";
 
 const TAG1_OPTIONS = [
@@ -44,6 +45,7 @@ export function FeedbackForm({
 
   if (isSuccess) {
     onSuccess?.();
+    emitEvent("feedback", { chainId, agentId, client: address });
     return (
       <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-400">
         Feedback submitted successfully!

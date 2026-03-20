@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { REGISTRY_ABI } from "@/lib/registry";
 import { REGISTRY_ADDRESSES, isChainSupported } from "@/lib/constants";
+import { emitEvent } from "@/lib/emit-event";
 import { buildAgentCard } from "@/lib/agent-card";
 import type { AgentService } from "@/lib/types";
 
@@ -49,8 +50,9 @@ export function EditAgentForm({
     if (isSuccess && step === "setting-uri") {
       setStep("done");
       onSuccess?.();
+      emitEvent("uri_update", { chainId, agentId });
     }
-  }, [isSuccess, step, onSuccess]);
+  }, [isSuccess, step, onSuccess, chainId, agentId]);
 
   const addService = () => {
     setServices([...services, { name: "", endpoint: "" }]);

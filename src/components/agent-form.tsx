@@ -15,6 +15,7 @@ import {
   getBlockExplorerUrl,
   isChainSupported,
 } from "@/lib/constants";
+import { emitEvent } from "@/lib/emit-event";
 import { buildAgentCard } from "@/lib/agent-card";
 import { AGENT_TEMPLATES } from "@/lib/templates";
 import type { AgentService } from "@/lib/types";
@@ -198,11 +199,16 @@ export function AgentForm({
   useEffect(() => {
     if (isSetUriSuccess && step === "setting-uri") {
       setStep("done");
-      if (registeredAgentId) {
+      if (registeredAgentId && address) {
         onSuccess?.(registeredAgentId);
+        emitEvent("registration", {
+          chainId,
+          agentId: registeredAgentId.toString(),
+          owner: address,
+        });
       }
     }
-  }, [isSetUriSuccess, step, registeredAgentId, onSuccess]);
+  }, [isSetUriSuccess, step, registeredAgentId, onSuccess, address, chainId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
