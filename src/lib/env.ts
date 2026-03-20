@@ -10,7 +10,7 @@ function requireClientEnv(key: string): string {
   const value = process.env[key] ?? "";
   if (isProd && (!value.trim() || value === "YOUR_PROJECT_ID")) {
     throw new Error(
-      `Missing required env: ${key}. Set it in your deployment environment.`
+      `Missing required env: ${key}. Add it in Vercel → Settings → Environment Variables`
     );
   }
   return value || "YOUR_PROJECT_ID";
