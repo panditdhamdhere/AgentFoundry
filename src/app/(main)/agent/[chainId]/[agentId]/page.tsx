@@ -18,6 +18,8 @@ import { ChainBadge } from "@/components/chain-badge";
 import { RevokeFeedbackButton } from "@/components/revoke-feedback-button";
 import { AppendResponseForm } from "@/components/append-response-form";
 import { ValidationRequestForm } from "@/components/validation-request-form";
+import { AgentWalletForm } from "@/components/agent-wallet-form";
+import { AgentMetadataForm } from "@/components/agent-metadata-form";
 
 interface AgentMetadata {
   name: string;
@@ -30,6 +32,7 @@ interface AgentData {
   chainId: number;
   agentId: string;
   owner: string | null;
+  agentWallet?: string | null;
   tokenURI: string | null;
   metadata: AgentMetadata | null;
   reputation: {
@@ -47,6 +50,8 @@ export default function AgentDetailPage() {
   const agentId = String(params.agentId);
   const [data, setData] = useState<AgentData | null>(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [showPaymentWallet, setShowPaymentWallet] = useState(false);
+  const [showOnChainMetadata, setShowOnChainMetadata] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [expandedResponseFor, setExpandedResponseFor] = useState<string | null>(null);
@@ -461,6 +466,34 @@ export default function AgentDetailPage() {
                 <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4">
                   <button
                     type="button"
+                    onClick={() => setShowPaymentWallet(!showPaymentWallet)}
+                    className="flex w-full items-center justify-between text-left text-sm font-medium text-zinc-300"
+                  >
+                    Payment wallet
+                    <span className="text-zinc-500">{showPaymentWallet ? "−" : "+"}</span>
+                  </button>
+                  {showPaymentWallet && data.owner && (
+                    <div className="mt-4 pt-4 border-t border-zinc-800/80">
+                      <p className="mb-3 text-xs text-zinc-500">
+                        Set the address that receives payments for this agent (EIP-712 verified).
+                      </p>
+                      <AgentWalletForm
+                        agentId={agentId}
+                        chainId={chainId}
+                        ownerAddress={data.owner}
+                        currentAgentWallet={data.agentWallet ?? null}
+                        onSuccess={() =>
+                          fetch(`/api/v1/agent/${chainId}/${agentId}`)
+                            .then((r) => r.json())
+                            .then(setData)
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4">
+                  <button
+                    type="button"
                     onClick={() => setShowTransfer(!showTransfer)}
                     className="flex w-full items-center justify-between text-left text-sm font-medium text-zinc-300"
                   >
@@ -484,6 +517,32 @@ export default function AgentDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* On-chain metadata (view: anyone; set: owner only) */}
+            <div className="mt-8 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4">
+              <button
+                type="button"
+                onClick={() => setShowOnChainMetadata(!showOnChainMetadata)}
+                className="flex w-full items-center justify-between text-left text-sm font-medium text-zinc-300"
+              >
+                On-chain metadata
+                <span className="text-zinc-500">{showOnChainMetadata ? "−" : "+"}</span>
+              </button>
+              {showOnChainMetadata && (
+                <div className="mt-4 pt-4 border-t border-zinc-800/80">
+                  <AgentMetadataForm
+                    agentId={agentId}
+                    chainId={chainId}
+                    isOwner={!!isOwner}
+                    onSuccess={() =>
+                      fetch(`/api/v1/agent/${chainId}/${agentId}`)
+                        .then((r) => r.json())
+                        .then(setData)
+                    }
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Actions */}
             <div className="mt-8 flex flex-wrap gap-3">

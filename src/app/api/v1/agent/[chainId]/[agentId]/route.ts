@@ -52,8 +52,9 @@ export async function GET(
 
     let tokenURI = "";
     let owner: string | null = null;
+    let agentWallet: string | null = null;
     try {
-      const [uriResult, ownerResult] = await Promise.all([
+      const [uriResult, ownerResult, walletResult] = await Promise.all([
         client.readContract({
           address: registry,
           abi: REGISTRY_ABI,
@@ -66,9 +67,17 @@ export async function GET(
           functionName: "ownerOf",
           args: [BigInt(agentId)],
         }).catch(() => null),
+        client.readContract({
+          address: registry,
+          abi: REGISTRY_ABI,
+          functionName: "getAgentWallet",
+          args: [BigInt(agentId)],
+        }).catch(() => null),
       ]);
       tokenURI = typeof uriResult === "string" ? uriResult : "";
       owner = ownerResult ? String(ownerResult) : null;
+      const w = walletResult;
+      agentWallet = w && typeof w === "string" && w !== "0x0000000000000000000000000000000000000000" ? w : null;
     } catch {
       // tokenURI may not be set or contract may use different interface
     }
@@ -122,6 +131,7 @@ export async function GET(
       chainId,
       agentId,
       owner: owner ?? null,
+      agentWallet: agentWallet ?? null,
       tokenURI: tokenURI || null,
       metadata,
       reputation,

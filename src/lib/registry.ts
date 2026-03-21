@@ -48,6 +48,53 @@ export const REGISTRY_ABI = [
     type: "function",
   },
   {
+    inputs: [{ name: "agentId", type: "uint256" }],
+    name: "getAgentWallet",
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { name: "agentId", type: "uint256" },
+      { name: "newWallet", type: "address" },
+      { name: "deadline", type: "uint256" },
+      { name: "signature", type: "bytes" },
+    ],
+    name: "setAgentWallet",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ name: "agentId", type: "uint256" }],
+    name: "unsetAgentWallet",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { name: "agentId", type: "uint256" },
+      { name: "metadataKey", type: "string" },
+    ],
+    name: "getMetadata",
+    outputs: [{ name: "", type: "bytes" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { name: "agentId", type: "uint256" },
+      { name: "metadataKey", type: "string" },
+      { name: "metadataValue", type: "bytes" },
+    ],
+    name: "setMetadata",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       { name: "from", type: "address" },
       { name: "to", type: "address" },
