@@ -21,9 +21,27 @@ export default function DocsPage() {
               <code className="rounded-lg bg-zinc-800 px-2 py-1 font-mono text-teal-400">
                 /api/v1
               </code>
+              {" · "}
+              <Link
+                href="/api-docs"
+                className="font-medium text-teal-400 transition-colors hover:text-teal-300"
+              >
+                OpenAPI / Swagger docs →
+              </Link>
             </p>
 
             <div className="mt-6 space-y-4">
+              <div className="card-base p-5">
+                <h3 className="font-mono text-sm font-semibold text-teal-400">
+                  GET /api/v1/agent/:chainId/:agentId
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                  Fetch agent metadata and reputation in one request. Returns
+                  chainId, agentId, owner, tokenURI, metadata, reputation, and
+                  verification.
+                </p>
+              </div>
+
               <div className="card-base p-5">
                 <h3 className="font-mono text-sm font-semibold text-teal-400">
                   GET /api/v1/chains
@@ -102,18 +120,23 @@ export default function DocsPage() {
               SDK
             </h2>
             <p className="mt-2 text-sm text-zinc-500">
-              Import from{" "}
+              Use the published SDK{" "}
               <code className="rounded-lg bg-zinc-800 px-2 py-1">
-                @/lib/agentfoundry-client
-              </code>
+                @agentfoundry/sdk
+              </code>{" "}
+              for typed methods and clearer error handling.
             </p>
             <pre className="mt-4 overflow-x-auto rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 text-sm leading-relaxed text-zinc-300">
-              {`import { AgentFoundryClient } from "@/lib/agentfoundry-client";
+              {`import { AgentFoundryClient } from "@agentfoundry/sdk";
 
-const client = new AgentFoundryClient("https://your-agentfoundry.com");
+const client = new AgentFoundryClient({ baseUrl: "https://your-agentfoundry.com" });
 
 // Get supported chains
 const { chains } = await client.getChains();
+
+// Fetch agent metadata + reputation in one call
+const agent = await client.getAgent(84532, "1");
+console.log(agent.metadata, agent.reputation);
 
 // After register() confirms, create agent card
 const { ipfsUri } = await client.createAgentCard({

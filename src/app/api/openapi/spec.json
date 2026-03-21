@@ -1,0 +1,277 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AgentFoundry API",
+    "description": "ERC-8004 agent registration and discovery API",
+    "version": "0.1.0"
+  },
+  "servers": [{ "url": "/", "description": "Current host" }],
+  "paths": {
+    "/api/v1/chains": {
+      "get": {
+        "summary": "List supported chains",
+        "tags": ["Chains"],
+        "responses": {
+          "200": {
+            "description": "Supported chains with registry addresses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chains": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "name": { "type": "string" },
+                          "identityRegistry": { "type": "string" },
+                          "reputationRegistry": { "type": "string" },
+                          "isTestnet": { "type": "boolean" }
+                        }
+                      }
+                    },
+                    "count": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agent/{chainId}/{agentId}": {
+      "get": {
+        "summary": "Get agent metadata and reputation",
+        "description": "Fetch agent metadata from IPFS and reputation summary in one request.",
+        "tags": ["Agents"],
+        "parameters": [
+          { "name": "chainId", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "agentId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chainId": { "type": "integer" },
+                    "agentId": { "type": "string" },
+                    "owner": { "type": "string", "nullable": true },
+                    "tokenURI": { "type": "string", "nullable": true },
+                    "metadata": { "type": "object", "nullable": true },
+                    "reputation": {
+                      "type": "object",
+                      "properties": {
+                        "count": { "type": "integer" },
+                        "summaryValue": { "type": "number" },
+                        "summaryValueDecimals": { "type": "integer" }
+                      }
+                    },
+                    "verification": {
+                      "type": "object",
+                      "properties": {
+                        "uriSet": { "type": "boolean" },
+                        "schemaValid": { "type": "boolean" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid chainId or agentId" }
+        }
+      }
+    },
+    "/api/v1/agents": {
+      "get": {
+        "summary": "List agents (directory)",
+        "tags": ["Agents"],
+        "parameters": [
+          { "name": "chainId", "in": "query", "schema": { "type": "integer", "default": 84532 } },
+          { "name": "protocol", "in": "query", "description": "Filter by protocol: MCP, A2A, OASF", "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 30 } }
+        ],
+        "responses": { "200": { "description": "List of agents" } }
+      }
+    },
+    "/api/v1/mcp-discovery": {
+      "get": {
+        "summary": "MCP server discovery",
+        "description": "Agents with MCP endpoints for Model Context Protocol clients.",
+        "tags": ["Discovery"],
+        "parameters": [
+          { "name": "chainId", "in": "query", "schema": { "type": "integer", "default": 84532 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50 } }
+        ],
+        "responses": { "200": { "description": "MCP servers list" } }
+      }
+    },
+    "/api/v1/reputation": {
+      "get": {
+        "summary": "Get reputation summary",
+        "tags": ["Reputation"],
+        "parameters": [
+          { "name": "agentId", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "chainId", "in": "query", "schema": { "type": "integer", "default": 84532 } }
+        ],
+        "responses": { "200": { "description": "Reputation data" } }
+      }
+    },
+    "/api/v1/my-agents": {
+      "get": {
+        "summary": "Get user's agents",
+        "tags": ["Agents"],
+        "parameters": [
+          { "name": "address", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "chainIds", "in": "query", "description": "Comma-separated or 'all'", "schema": { "type": "string" } },
+          { "name": "includeReputation", "in": "query", "schema": { "type": "boolean" } },
+          { "name": "includeVerification", "in": "query", "schema": { "type": "boolean" } }
+        ],
+        "responses": { "200": { "description": "User's agents" } }
+      }
+    },
+    "/api/v1/activity": {
+      "get": {
+        "summary": "Recent registrations",
+        "tags": ["Activity"],
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 15 } },
+          { "name": "chainIds", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Activity feed" } }
+      }
+    },
+    "/api/v1/agent-card": {
+      "post": {
+        "summary": "Create agent card",
+        "description": "Upload agent card to IPFS. Requires API key when configured.",
+        "tags": ["Agents"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["chainId", "agentId", "name", "description", "image"],
+                "properties": {
+                  "chainId": { "type": "integer" },
+                  "agentId": { "oneOf": [{ "type": "integer" }, { "type": "string" }] },
+                  "name": { "type": "string" },
+                  "description": { "type": "string" },
+                  "image": { "type": "string" },
+                  "services": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "endpoint": { "type": "string" },
+                        "version": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IPFS URI and CID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ipfsUri": { "type": "string" },
+                    "cid": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/upload": {
+      "post": {
+        "summary": "Upload image to IPFS",
+        "tags": ["Upload"],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": { "file": { "type": "string", "format": "binary" } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ipfsUri": { "type": "string" },
+                    "cid": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/webhooks": {
+      "post": {
+        "summary": "Register webhook",
+        "description": "Register URL for events: registration, uri_update, feedback. Requires API key when configured.",
+        "tags": ["Webhooks"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["url", "events"],
+                "properties": {
+                  "url": { "type": "string", "format": "uri" },
+                  "events": { "type": "array", "items": { "type": "string", "enum": ["registration", "uri_update", "feedback"] } }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Webhook registered" } }
+      }
+    },
+    "/api/v1/events": {
+      "post": {
+        "summary": "Emit event (internal)",
+        "description": "Triggers webhook delivery. Called by frontend after registration, uri_update, feedback.",
+        "tags": ["Webhooks"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "event": { "type": "string", "enum": ["registration", "uri_update", "feedback"] },
+                  "data": { "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK" } }
+      }
+    }
+  }
+}

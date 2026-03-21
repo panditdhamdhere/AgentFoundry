@@ -100,7 +100,15 @@ export function Footer() {
                     href="/docs"
                     className="text-sm text-zinc-500 transition-colors hover:text-teal-400"
                   >
-                    API Docs
+                    Developer Docs
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/api-docs"
+                    className="text-sm text-zinc-500 transition-colors hover:text-teal-400"
+                  >
+                    API Reference (Swagger)
                   </Link>
                 </li>
                 <li>
