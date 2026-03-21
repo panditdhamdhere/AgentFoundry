@@ -112,13 +112,43 @@
         "responses": { "200": { "description": "MCP servers list" } }
       }
     },
+    "/api/v1/validation": {
+      "get": {
+        "summary": "Get validation status",
+        "description": "ERC-8004 Validation Registry status. Returns available=false when registry is not yet deployed.",
+        "tags": ["Validation"],
+        "parameters": [
+          { "name": "agentId", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "chainId", "in": "query", "schema": { "type": "integer", "default": 84532 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validation data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": { "type": "boolean" },
+                    "count": { "type": "integer" },
+                    "averageResponse": { "type": "integer" },
+                    "validations": { "type": "array", "items": { "type": "object" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reputation": {
       "get": {
         "summary": "Get reputation summary",
         "tags": ["Reputation"],
         "parameters": [
           { "name": "agentId", "in": "query", "required": true, "schema": { "type": "string" } },
-          { "name": "chainId", "in": "query", "schema": { "type": "integer", "default": 84532 } }
+          { "name": "chainId", "in": "query", "schema": { "type": "integer", "default": 84532 } },
+          { "name": "includeFeedback", "in": "query", "description": "Include full feedback list", "schema": { "type": "boolean" } }
         ],
         "responses": { "200": { "description": "Reputation data" } }
       }

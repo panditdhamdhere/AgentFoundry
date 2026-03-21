@@ -55,6 +55,7 @@ export async function GET(request: Request) {
         summaryValue: 0,
         summaryValueDecimals: 0,
         clients: [],
+        feedback: [],
       });
     }
 
@@ -65,6 +66,46 @@ export async function GET(request: Request) {
       args: [BigInt(agentId), clients, "", ""],
     });
 
+    const includeFeedback = searchParams.get("includeFeedback") === "true";
+    let feedback: Array<{
+      client: string;
+      feedbackIndex: number;
+      value: number;
+      valueDecimals: number;
+      tag1: string;
+      tag2: string;
+      isRevoked: boolean;
+    }> = [];
+
+    if (includeFeedback) {
+      try {
+        const [feedbackClients, feedbackIndexes, values, valueDecimals, tag1s, tag2s, revokedStatuses] =
+          await client.readContract({
+            address: reputationAddress,
+            abi: REPUTATION_ABI,
+            functionName: "readAllFeedback",
+            args: [BigInt(agentId), clients, "", "", false],
+          });
+        feedback = (feedbackClients as string[]).flatMap((clientAddr, i) => {
+          const idx = Number(feedbackIndexes[i]);
+          const val = Number(values[i]);
+          const dec = valueDecimals[i];
+          const displayValue = dec > 0 ? val / Math.pow(10, dec) : val;
+          return {
+            client: clientAddr,
+            feedbackIndex: idx,
+            value: displayValue,
+            valueDecimals: dec,
+            tag1: tag1s[i] ?? "",
+            tag2: tag2s[i] ?? "",
+            isRevoked: revokedStatuses[i] ?? false,
+          };
+        });
+      } catch {
+        // readAllFeedback failed - continue without feedback list
+      }
+    }
+
     return NextResponse.json({
       agentId,
       chainId,
@@ -72,6 +113,7 @@ export async function GET(request: Request) {
       summaryValue: Number(summaryValue),
       summaryValueDecimals,
       clients: clients as string[],
+      feedback,
     });
   } catch (error) {
     console.error("Reputation API error:", error);

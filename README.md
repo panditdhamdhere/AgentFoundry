@@ -61,8 +61,8 @@ No-code ERC-8004 AI agent registration. Register your AI agents on-chain with a 
 This app uses the [ERC-8004 Trustless Agents](https://eips.ethereum.org/EIPS/eip-8004) standard:
 
 - **Identity Registry** — ERC-721 based agent NFTs
-- **Reputation Registry** — On-chain feedback (not yet implemented in this UI)
-- **Validation Registry** — Independent verification (not yet implemented)
+- **Reputation Registry** — Give and view feedback on agents (UI on agent page)
+- **Validation Registry** — Independent verification UI (ready; registry deployment in progress per 8004 team)
 
 Supported chains (40+ networks). Contract addresses via [ERC-8004 deterministic deployment](https://github.com/erc-8004/erc-8004-contracts):
 

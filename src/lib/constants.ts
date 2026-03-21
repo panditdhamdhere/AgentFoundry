@@ -194,6 +194,14 @@ MAINNET_CHAINS.forEach((c) => {
   REPUTATION_REGISTRY_ADDRESSES[c.id] = MAINNET_REPUTATION;
 });
 
+// ERC-8004 Validation Registry - spec exists, deployment in progress per 8004 team
+// Add addresses to VALIDATION_REGISTRY_ADDRESSES when deployed. UI shows "coming soon" when missing.
+export const VALIDATION_REGISTRY_ADDRESSES: Partial<Record<number, `0x${string}`>> = {};
+
+export function hasValidationRegistry(chainId: number): boolean {
+  return !!VALIDATION_REGISTRY_ADDRESSES[chainId];
+}
+
 // Block explorer URLs for contract/address views
 export const BLOCK_EXPLORERS: Record<
   number,

@@ -65,4 +65,35 @@ export const REPUTATION_ABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [
+      { name: "agentId", type: "uint256" },
+      { name: "clientAddresses", type: "address[]" },
+      { name: "tag1", type: "string" },
+      { name: "tag2", type: "string" },
+      { name: "includeRevoked", type: "bool" },
+    ],
+    name: "readAllFeedback",
+    outputs: [
+      { name: "clients", type: "address[]" },
+      { name: "feedbackIndexes", type: "uint64[]" },
+      { name: "values", type: "int128[]" },
+      { name: "valueDecimals", type: "uint8[]" },
+      { name: "tag1s", type: "string[]" },
+      { name: "tag2s", type: "string[]" },
+      { name: "revokedStatuses", type: "bool[]" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { name: "agentId", type: "uint256" },
+      { name: "clientAddress", type: "address" },
+    ],
+    name: "getLastIndex",
+    outputs: [{ name: "", type: "uint64" }],
+    stateMutability: "view",
+    type: "function",
+  },
 ] as const;

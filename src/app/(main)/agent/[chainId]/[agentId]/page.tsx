@@ -13,6 +13,8 @@ import { CopyButton } from "@/components/copy-button";
 import { VerificationBadge } from "@/components/verification-badge";
 import { EditAgentForm } from "@/components/edit-agent-form";
 import { TransferAgentForm } from "@/components/transfer-agent-form";
+import { FeedbackForm } from "@/components/feedback-form";
+import { ChainBadge } from "@/components/chain-badge";
 
 interface AgentMetadata {
   name: string;
@@ -43,8 +45,23 @@ export default function AgentDetailPage() {
   const [data, setData] = useState<AgentData | null>(null);
   const [showEdit, setShowEdit] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [feedbackList, setFeedbackList] = useState<
+    Array<{ client: string; feedbackIndex: number; value: number; tag1: string; tag2: string; isRevoked: boolean }>
+  >([]);
+  const [validationData, setValidationData] = useState<{
+    available: boolean;
+    count: number;
+    averageResponse: number;
+    validations: Array<{ response: number; tag: string }>;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const refetchData = () =>
+    fetch(`/api/v1/agent/${chainId}/${agentId}`)
+      .then((r) => r.json())
+      .then(setData);
 
   useEffect(() => {
     if (!chainId || !agentId) return;
@@ -56,6 +73,24 @@ export default function AgentDetailPage() {
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : "Error"))
       .finally(() => setLoading(false));
+  }, [chainId, agentId]);
+
+  // Fetch feedback list when reputation count > 0
+  useEffect(() => {
+    if (!chainId || !agentId || !data || data.reputation.count === 0) return;
+    fetch(`/api/v1/reputation?agentId=${agentId}&chainId=${chainId}&includeFeedback=true`)
+      .then((r) => r.json())
+      .then((d) => setFeedbackList(d.feedback ?? []))
+      .catch(() => {});
+  }, [chainId, agentId, data?.reputation.count]);
+
+  // Fetch validation data
+  useEffect(() => {
+    if (!chainId || !agentId) return;
+    fetch(`/api/v1/validation?agentId=${agentId}&chainId=${chainId}`)
+      .then((r) => r.json())
+      .then(setValidationData)
+      .catch(() => setValidationData({ available: false, count: 0, averageResponse: 0, validations: [] }));
   }, [chainId, agentId]);
 
   if (loading) {
@@ -194,6 +229,98 @@ export default function AgentDetailPage() {
                   </span>
                 )}
               </p>
+              {feedbackList.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-xs font-medium text-zinc-500">Recent feedback</p>
+                  {feedbackList.slice(0, 8).map((fb, i) => (
+                    <div
+                      key={`${fb.client}-${fb.feedbackIndex}-${i}`}
+                      className="flex items-center justify-between rounded-lg bg-zinc-900/60 px-3 py-2 text-sm"
+                    >
+                      <span className="truncate font-mono text-zinc-400">
+                        {fb.client.slice(0, 6)}…{fb.client.slice(-4)}
+                      </span>
+                      <span className="text-teal-400">
+                        {fb.tag1}: {fb.value}
+                        {fb.tag2 ? ` (${fb.tag2})` : ""}
+                      </span>
+                      {fb.isRevoked && (
+                        <span className="text-xs text-amber-500">revoked</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="mt-4 border-t border-zinc-800/80 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowFeedbackForm(!showFeedbackForm)}
+                  className="flex w-full items-center justify-between text-left text-sm font-medium text-zinc-300"
+                >
+                  Give feedback
+                  <span className="text-zinc-500">{showFeedbackForm ? "−" : "+"}</span>
+                </button>
+                {showFeedbackForm && (
+                  <div className="mt-4">
+                    <ChainBadge />
+                    <div className="mt-3">
+                      <FeedbackForm
+                        agentId={agentId}
+                        chainId={chainId}
+                        onSuccess={() => {
+                          refetchData();
+                          fetch(`/api/v1/reputation?agentId=${agentId}&chainId=${chainId}&includeFeedback=true`)
+                            .then((r) => r.json())
+                            .then((d) => setFeedbackList(d.feedback ?? []));
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Validation Registry */}
+            <div className="mt-6 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                Validation
+              </h2>
+              {validationData?.available ? (
+                <>
+                  <p className="mt-2 font-mono text-lg font-medium text-zinc-100">
+                    {validationData.count} validation
+                    {validationData.count !== 1 ? "s" : ""}
+                    {validationData.count > 0 && (
+                      <span className="ml-2 text-teal-400">
+                        (avg: {validationData.averageResponse}%)
+                      </span>
+                    )}
+                  </p>
+                  {validationData.validations.length > 0 && (
+                    <ul className="mt-3 space-y-2">
+                      {validationData.validations.map((v, i) => (
+                        <li
+                          key={i}
+                          className="flex items-center gap-2 text-sm text-zinc-400"
+                        >
+                          <span
+                            className={
+                              v.response >= 100 ? "text-emerald-400" : v.response >= 50 ? "text-amber-400" : "text-red-400"
+                            }
+                          >
+                            {v.response}%
+                          </span>
+                          {v.tag && <span className="text-zinc-500">· {v.tag}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <p className="mt-2 text-sm text-zinc-500">
+                  Independent validation (zkML, TEE, staked verifiers) coming soon. The ERC-8004 Validation Registry is being finalized by the 8004 team.
+                </p>
+              )}
             </div>
 
             {/* Services */}
@@ -290,8 +417,8 @@ export default function AgentDetailPage() {
 
             {/* Actions */}
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href={feedbackUrl} className="btn-primary">
-                Give feedback
+              <Link href={feedbackUrl} className="btn-secondary">
+                Feedback page →
               </Link>
               <a
                 href={scanUrl}
