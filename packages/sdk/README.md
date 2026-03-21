@@ -1,17 +1,24 @@
-# @agentfoundry/sdk
+# @panditdhamdhere/agentfoundry-sdk
 
 Official SDK for [AgentFoundry](https://agentfoundry.com) - ERC-8004 agent registration and discovery.
 
 ## Install
 
+**From GitHub Packages** (after publish):
 ```bash
-npm install @agentfoundry/sdk
+npm install @panditdhamdhere/agentfoundry-sdk
+```
+
+**From Git** (no publish needed):
+```bash
+npm install "github:panditdhamdhere/AgentFoundry#main:packages/sdk"
+# Or in package.json: "agentfoundry-sdk": "github:panditdhamdhere/AgentFoundry#main:packages/sdk"
 ```
 
 ## Usage
 
 ```typescript
-import { AgentFoundryClient, AgentFoundryError } from "@agentfoundry/sdk";
+import { AgentFoundryClient, AgentFoundryError } from "@panditdhamdhere/agentfoundry-sdk";
 
 const client = new AgentFoundryClient("https://your-agentfoundry.com");
 

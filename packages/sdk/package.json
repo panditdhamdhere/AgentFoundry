@@ -1,5 +1,13 @@
 {
-  "name": "@agentfoundry/sdk",
+  "name": "@panditdhamdhere/agentfoundry-sdk",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panditdhamdhere/AgentFoundry.git",
+    "directory": "packages/sdk"
+  },
   "version": "0.1.0",
   "description": "Official SDK for AgentFoundry - ERC-8004 agent registration and discovery",
   "main": "dist/index.js",
@@ -7,9 +15,9 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     }
   },
   "files": ["dist", "README.md"],

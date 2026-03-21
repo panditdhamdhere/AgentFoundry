@@ -15,6 +15,7 @@ import { EditAgentForm } from "@/components/edit-agent-form";
 import { TransferAgentForm } from "@/components/transfer-agent-form";
 import { FeedbackForm } from "@/components/feedback-form";
 import { ChainBadge } from "@/components/chain-badge";
+import { RevokeFeedbackButton } from "@/components/revoke-feedback-button";
 
 interface AgentMetadata {
   name: string;
@@ -49,6 +50,10 @@ export default function AgentDetailPage() {
   const [feedbackList, setFeedbackList] = useState<
     Array<{ client: string; feedbackIndex: number; value: number; tag1: string; tag2: string; isRevoked: boolean }>
   >([]);
+  const refetchFeedback = () =>
+    fetch(`/api/v1/reputation?agentId=${agentId}&chainId=${chainId}&includeFeedback=true`)
+      .then((r) => r.json())
+      .then((d) => setFeedbackList(d.feedback ?? []));
   const [validationData, setValidationData] = useState<{
     available: boolean;
     count: number;
@@ -232,23 +237,41 @@ export default function AgentDetailPage() {
               {feedbackList.length > 0 && (
                 <div className="mt-4 space-y-2">
                   <p className="text-xs font-medium text-zinc-500">Recent feedback</p>
-                  {feedbackList.slice(0, 8).map((fb, i) => (
-                    <div
-                      key={`${fb.client}-${fb.feedbackIndex}-${i}`}
-                      className="flex items-center justify-between rounded-lg bg-zinc-900/60 px-3 py-2 text-sm"
-                    >
-                      <span className="truncate font-mono text-zinc-400">
-                        {fb.client.slice(0, 6)}…{fb.client.slice(-4)}
-                      </span>
-                      <span className="text-teal-400">
-                        {fb.tag1}: {fb.value}
-                        {fb.tag2 ? ` (${fb.tag2})` : ""}
-                      </span>
-                      {fb.isRevoked && (
-                        <span className="text-xs text-amber-500">revoked</span>
-                      )}
-                    </div>
-                  ))}
+                  {feedbackList.slice(0, 8).map((fb, i) => {
+                    const canRevoke =
+                      !!address &&
+                      !fb.isRevoked &&
+                      address.toLowerCase() === fb.client.toLowerCase();
+                    return (
+                      <div
+                        key={`${fb.client}-${fb.feedbackIndex}-${i}`}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-zinc-900/60 px-3 py-2 text-sm"
+                      >
+                        <span className="truncate font-mono text-zinc-400">
+                          {fb.client.slice(0, 6)}…{fb.client.slice(-4)}
+                        </span>
+                        <span className="text-teal-400">
+                          {fb.tag1}: {fb.value}
+                          {fb.tag2 ? ` (${fb.tag2})` : ""}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          {fb.isRevoked ? (
+                            <span className="text-xs text-amber-500">revoked</span>
+                          ) : canRevoke ? (
+                            <RevokeFeedbackButton
+                              agentId={agentId}
+                              chainId={chainId}
+                              feedbackIndex={fb.feedbackIndex}
+                              onSuccess={() => {
+                                refetchData();
+                                refetchFeedback();
+                              }}
+                            />
+                          ) : null}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
               <div className="mt-4 border-t border-zinc-800/80 pt-4">
@@ -269,9 +292,7 @@ export default function AgentDetailPage() {
                         chainId={chainId}
                         onSuccess={() => {
                           refetchData();
-                          fetch(`/api/v1/reputation?agentId=${agentId}&chainId=${chainId}&includeFeedback=true`)
-                            .then((r) => r.json())
-                            .then((d) => setFeedbackList(d.feedback ?? []));
+                          refetchFeedback();
                         }}
                       />
                     </div>
