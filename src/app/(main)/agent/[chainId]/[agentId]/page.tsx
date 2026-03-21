@@ -17,6 +17,7 @@ import { FeedbackForm } from "@/components/feedback-form";
 import { ChainBadge } from "@/components/chain-badge";
 import { RevokeFeedbackButton } from "@/components/revoke-feedback-button";
 import { AppendResponseForm } from "@/components/append-response-form";
+import { ValidationRequestForm } from "@/components/validation-request-form";
 
 interface AgentMetadata {
   name: string;
@@ -367,6 +368,22 @@ export default function AgentDetailPage() {
                         </li>
                       ))}
                     </ul>
+                  )}
+                  {isOwner && (
+                    <div className="mt-4 border-t border-zinc-800/80 pt-4">
+                      <p className="text-xs font-medium text-zinc-500">
+                        Request validation (owner only)
+                      </p>
+                      <ValidationRequestForm
+                        agentId={agentId}
+                        chainId={chainId}
+                        onSuccess={() => {
+                          fetch(`/api/v1/validation?agentId=${agentId}&chainId=${chainId}`)
+                            .then((r) => r.json())
+                            .then(setValidationData);
+                        }}
+                      />
+                    </div>
                   )}
                 </>
               ) : (
