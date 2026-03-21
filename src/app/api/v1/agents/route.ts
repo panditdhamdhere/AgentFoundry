@@ -16,24 +16,13 @@ import {
 } from "@/lib/agent-utils";
 import type { AgentCard } from "@/lib/types";
 import { getRpcUrlForChain } from "@/lib/env";
-import { fetchRegistrationsFromSubgraph } from "@/lib/subgraph";
+import { getIndexedAgents } from "@/lib/agent-index";
 
-type Registration = { agentId: string; owner: string; blockNumber: number };
-
-/** Fetch recent Registered events via subgraph (if configured) or RPC. */
+/** Fetch recent Registered events for a chain (raw RPC). */
 async function fetchRecentRegistrations(
   chainId: number,
   limit: number
-): Promise<Registration[]> {
-  const subgraphResults = await fetchRegistrationsFromSubgraph(
-    chainId,
-    limit * 3
-  );
-  if (subgraphResults.length > 0) {
-    return subgraphResults;
-  }
-
-  // Fallback: raw RPC event scanning
+): Promise<Array<{ agentId: string; owner: string; blockNumber: number }>> {
   const registry = REGISTRY_ADDRESSES[chainId];
   const chain = CHAIN_BY_ID[chainId];
   if (!registry || !chain || !isChainSupported(chainId)) return [];
@@ -46,7 +35,7 @@ async function fetchRecentRegistrations(
 
   const blockNumber = await client.getBlockNumber();
   const chunkSize = 2000;
-  const results: Registration[] = [];
+  const results: Array<{ agentId: string; owner: string; blockNumber: number }> = [];
 
   for (let i = 0; i < 20; i++) {
     const toBlock = blockNumber - BigInt(i * chunkSize);
@@ -103,27 +92,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const registrations = await fetchRecentRegistrations(chainId, limit * 3);
-
-    const registry = REGISTRY_ADDRESSES[chainId];
-    const chain = CHAIN_BY_ID[chainId];
-    const rpcUrl = getRpcUrlForChain(chainId);
-    const client = createPublicClient({
-      chain: chain!,
-      transport: rpcUrl ? http(rpcUrl) : http(),
-    });
-
-    const tokenUris = await client.multicall({
-      contracts: registrations.slice(0, limit * 2).map((reg) => ({
-        address: registry!,
-        abi: REGISTRY_ABI,
-        functionName: "tokenURI" as const,
-        args: [BigInt(reg.agentId)] as const,
-      })),
-      allowFailure: true,
-    });
-
-    const agents: Array<{
+    let agents: Array<{
       chainId: number;
       agentId: string;
       owner: string;
@@ -134,40 +103,82 @@ export async function GET(request: Request) {
       chainName: string;
     }> = [];
 
-    const metadataPromises = registrations.slice(0, limit * 2).map(
-      async (reg, i) => {
-        const result = tokenUris[i];
-        const tokenURI =
-          result?.status === "success" && result.result
-            ? String(result.result)
-            : null;
+    const indexed = await getIndexedAgents(chainId);
+    if (indexed.length > 0) {
+      agents = indexed.map((a) => ({
+        chainId,
+        agentId: a.agentId,
+        owner: a.owner,
+        blockNumber: a.blockNumber,
+        tokenURI: a.tokenURI,
+        metadata: a.metadata,
+        verification: a.verification,
+        chainName: a.chainName,
+      }));
+    } else {
+      const registrations = await fetchRecentRegistrations(chainId, limit * 3);
+      const registry = REGISTRY_ADDRESSES[chainId];
+      const chain = CHAIN_BY_ID[chainId];
+      const rpcUrl = getRpcUrlForChain(chainId);
+      const client = createPublicClient({
+        chain: chain!,
+        transport: rpcUrl ? http(rpcUrl) : http(),
+      });
 
-        const metadata = tokenURI ? await fetchAgentMetadata(tokenURI) : null;
+      const tokenUris = await client.multicall({
+        contracts: registrations.slice(0, limit * 2).map((reg) => ({
+          address: registry!,
+          abi: REGISTRY_ABI,
+          functionName: "tokenURI" as const,
+          args: [BigInt(reg.agentId)] as const,
+        })),
+        allowFailure: true,
+      });
 
-        if (protocol && !hasProtocol(metadata, protocol)) return null;
-        if (search && !matchesSearch(metadata, search, reg.agentId))
-          return null;
+      const metadataPromises = registrations.slice(0, limit * 2).map(
+        async (reg, i) => {
+          const result = tokenUris[i];
+          const tokenURI =
+            result?.status === "success" && result.result
+              ? String(result.result)
+              : null;
 
-        const verification = getVerificationStatus(tokenURI, metadata);
+          const metadata = tokenURI ? await fetchAgentMetadata(tokenURI) : null;
 
-        return {
-          chainId,
-          agentId: reg.agentId,
-          owner: reg.owner,
-          blockNumber: reg.blockNumber,
-          tokenURI,
-          metadata,
-          verification,
-          chainName: CHAIN_NAMES[chainId] ?? `Chain ${chainId}`,
-        };
+          if (protocol && !hasProtocol(metadata, protocol)) return null;
+          if (search && !matchesSearch(metadata, search, reg.agentId))
+            return null;
+
+          const verification = getVerificationStatus(tokenURI, metadata);
+
+          return {
+            chainId,
+            agentId: reg.agentId,
+            owner: reg.owner,
+            blockNumber: reg.blockNumber,
+            tokenURI,
+            metadata,
+            verification,
+            chainName: CHAIN_NAMES[chainId] ?? `Chain ${chainId}`,
+          };
+        }
+      );
+
+      const results = await Promise.all(metadataPromises);
+      for (const r of results) {
+        if (r) agents.push(r);
       }
-    );
-
-    const results = await Promise.all(metadataPromises);
-    for (const r of results) {
-      if (r) agents.push(r);
+      agents.sort((a, b) => b.blockNumber - a.blockNumber);
     }
-    agents.sort((a, b) => b.blockNumber - a.blockNumber);
+
+    if (protocol || search) {
+      agents = agents.filter((a) => {
+        if (protocol && !hasProtocol(a.metadata, protocol)) return false;
+        if (search && !matchesSearch(a.metadata, search, a.agentId)) return false;
+        return true;
+      });
+    }
+
     const limited = agents.slice(0, limit);
 
     return NextResponse.json({
