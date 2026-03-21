@@ -8,12 +8,7 @@ import {
 } from "@/lib/constants";
 import { REGISTRY_ABI } from "@/lib/registry";
 import { fetchAgentMetadata, getVerificationStatus } from "@/lib/agent-utils";
-
-function getRpcUrl(chainId: number): string | undefined {
-  if (chainId === 84532) return process.env.NODE_RPC_URL_BASE_SEPOLIA;
-  if (chainId === 1) return process.env.NODE_RPC_URL_MAINNET;
-  return undefined;
-}
+import { getRpcUrlForChain } from "@/lib/env";
 
 async function fetchReputation(
   chainId: number,
@@ -45,7 +40,7 @@ async function fetchAgentsForChain(
   const chain = CHAIN_BY_ID[chainId];
   if (!registry || !chain) return [];
 
-  const rpcUrl = getRpcUrl(chainId);
+  const rpcUrl = getRpcUrlForChain(chainId);
   const client = createPublicClient({
     chain,
     transport: rpcUrl ? http(rpcUrl) : http(),
@@ -146,7 +141,7 @@ export async function GET(request: Request) {
                   const chain = CHAIN_BY_ID[a.chainId];
                   const registry = REGISTRY_ADDRESSES[a.chainId];
                   if (!chain || !registry) return null;
-                  const rpcUrl = getRpcUrl(a.chainId);
+                  const rpcUrl = getRpcUrlForChain(a.chainId);
                   const client = createPublicClient({
                     chain,
                     transport: rpcUrl ? http(rpcUrl) : http(),

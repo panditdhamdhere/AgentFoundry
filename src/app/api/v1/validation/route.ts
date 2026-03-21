@@ -6,7 +6,7 @@ import {
   isChainSupported,
   SUPPORTED_CHAINS,
 } from "@/lib/constants";
-import { env } from "@/lib/env";
+import { getRpcUrlForChain } from "@/lib/env";
 import { VALIDATION_ABI } from "@/lib/validation-registry";
 
 export async function GET(request: Request) {
@@ -47,10 +47,7 @@ export async function GET(request: Request) {
     }
 
     const chain = SUPPORTED_CHAINS.find((c) => c.id === chainId) ?? SUPPORTED_CHAINS[0];
-    const rpcUrl =
-      chainId === 1 ? env.rpc.mainnet
-      : chainId === 84532 ? env.rpc.baseSepolia
-      : undefined;
+    const rpcUrl = getRpcUrlForChain(chainId);
     const client = createPublicClient({
       chain,
       transport: rpcUrl ? http(rpcUrl) : http(),

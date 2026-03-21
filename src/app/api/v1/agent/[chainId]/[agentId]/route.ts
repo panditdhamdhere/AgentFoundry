@@ -7,14 +7,8 @@ import {
 } from "@/lib/constants";
 import { REGISTRY_ABI } from "@/lib/registry";
 import { getVerificationStatus } from "@/lib/agent-utils";
-import { env } from "@/lib/env";
+import { env, getRpcUrlForChain } from "@/lib/env";
 import type { AgentCard } from "@/lib/types";
-
-function getRpcUrl(chainId: number): string | undefined {
-  if (chainId === 84532) return process.env.NODE_RPC_URL_BASE_SEPOLIA;
-  if (chainId === 1) return process.env.NODE_RPC_URL_MAINNET;
-  return undefined;
-}
 
 function resolveIpfsUrl(uri: string): string {
   if (uri.startsWith("ipfs://")) {
@@ -50,7 +44,7 @@ export async function GET(
       );
     }
 
-    const rpcUrl = getRpcUrl(chainId);
+    const rpcUrl = getRpcUrlForChain(chainId);
     const client = createPublicClient({
       chain,
       transport: rpcUrl ? http(rpcUrl) : http(),

@@ -15,12 +15,7 @@ import {
   matchesSearch,
 } from "@/lib/agent-utils";
 import type { AgentCard } from "@/lib/types";
-
-function getRpcUrl(chainId: number): string | undefined {
-  if (chainId === 84532) return process.env.NODE_RPC_URL_BASE_SEPOLIA;
-  if (chainId === 1) return process.env.NODE_RPC_URL_MAINNET;
-  return undefined;
-}
+import { getRpcUrlForChain } from "@/lib/env";
 
 /** Fetch recent Registered events for a chain (no owner filter) */
 async function fetchRecentRegistrations(
@@ -31,7 +26,7 @@ async function fetchRecentRegistrations(
   const chain = CHAIN_BY_ID[chainId];
   if (!registry || !chain || !isChainSupported(chainId)) return [];
 
-  const rpcUrl = getRpcUrl(chainId);
+  const rpcUrl = getRpcUrlForChain(chainId);
   const client = createPublicClient({
     chain,
     transport: rpcUrl ? http(rpcUrl) : http(),
@@ -101,7 +96,7 @@ export async function GET(request: Request) {
 
     const registry = REGISTRY_ADDRESSES[chainId];
     const chain = CHAIN_BY_ID[chainId];
-    const rpcUrl = getRpcUrl(chainId);
+    const rpcUrl = getRpcUrlForChain(chainId);
     const client = createPublicClient({
       chain: chain!,
       transport: rpcUrl ? http(rpcUrl) : http(),

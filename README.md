@@ -56,6 +56,38 @@ No-code ERC-8004 AI agent registration. Register your AI agents on-chain with a 
 
    Open [http://localhost:3000](http://localhost:3000).
 
+## Production Setup
+
+Set these before public launch:
+
+- **Core required**
+  - `PINATA_JWT`
+  - `PINATA_GATEWAY`
+  - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
+- **Open registration**
+  - `BETA_PUBLIC_REGISTRATION=true`
+- **Rate limiting (multi-instance safe)**
+  - `UPSTASH_REDIS_REST_URL`
+  - `UPSTASH_REDIS_REST_TOKEN`
+- **RPC reliability**
+  - `NODE_RPC_URL_MAINNET`
+  - `NODE_RPC_URL_BASE_SEPOLIA`
+  - Optional per-chain format: `NODE_RPC_URL_<CHAIN_ID>` (example: `NODE_RPC_URL_8453`)
+- **Monitoring (Sentry)**
+  - `NEXT_PUBLIC_SENTRY_DSN`
+  - `SENTRY_DSN`
+  - `SENTRY_ORG`
+  - `SENTRY_PROJECT`
+  - `SENTRY_AUTH_TOKEN`
+
+Recommended verification before launch:
+
+1. `npm run build` passes in production mode
+2. `/api/v1/*` routes respond and rate limit correctly
+3. create-agent flow succeeds end-to-end on target chain
+4. Sentry receives a test exception
+5. webhook + API key behavior matches your intended access model
+
 ## ERC-8004
 
 This app uses the [ERC-8004 Trustless Agents](https://eips.ethereum.org/EIPS/eip-8004) standard:

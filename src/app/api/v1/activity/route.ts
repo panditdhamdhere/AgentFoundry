@@ -7,15 +7,10 @@ import {
   isChainSupported,
   CHAIN_NAMES,
 } from "@/lib/constants";
+import { getRpcUrlForChain } from "@/lib/env";
 
 function isValidChainId(id: number): boolean {
   return !isNaN(id) && isChainSupported(id);
-}
-
-function getRpcUrl(chainId: number): string | undefined {
-  if (chainId === 84532) return process.env.NODE_RPC_URL_BASE_SEPOLIA;
-  if (chainId === 1) return process.env.NODE_RPC_URL_MAINNET;
-  return undefined;
 }
 
 /** Fetch recent Registered events for activity feed */
@@ -29,7 +24,7 @@ async function fetchRecentForChain(
   const chain = CHAIN_BY_ID[chainId];
   if (!registry || !chain || !isChainSupported(chainId)) return [];
 
-  const rpcUrl = getRpcUrl(chainId);
+  const rpcUrl = getRpcUrlForChain(chainId);
   const client = createPublicClient({
     chain,
     transport: rpcUrl ? http(rpcUrl) : http(),

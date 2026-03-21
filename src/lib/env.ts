@@ -29,6 +29,18 @@ export const env = {
   apiKey: process.env.API_KEY ?? "",
 };
 
+/** Resolve RPC URL for a chain from env overrides. */
+export function getRpcUrlForChain(chainId: number): string | undefined {
+  if (chainId === 1) return process.env.NODE_RPC_URL_MAINNET;
+  if (chainId === 84532) return process.env.NODE_RPC_URL_BASE_SEPOLIA;
+
+  // Generic format for any supported chain: NODE_RPC_URL_<CHAIN_ID>
+  const byId = process.env[`NODE_RPC_URL_${chainId}`];
+  if (byId && byId.trim().length > 0) return byId;
+
+  return undefined;
+}
+
 /** If API_KEY is set, requests must include x-api-key header. */
 export function requireApiKeyIfConfigured(request: Request): boolean {
   const configured = env.apiKey && env.apiKey.length > 0;
