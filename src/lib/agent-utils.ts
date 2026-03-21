@@ -1,5 +1,6 @@
 import { env } from "./env";
 import type { AgentCard, AgentService } from "./types";
+import { getCachedMetadata, setCachedMetadata } from "./metadata-cache";
 
 const PROTOCOLS = ["MCP", "A2A", "OASF", "mcp", "a2a", "oasf"] as const;
 
@@ -14,19 +15,25 @@ export function resolveIpfsUrl(uri: string): string {
   return uri;
 }
 
-/** Fetch metadata from URI (ipfs or http) */
+/** Fetch metadata from URI (ipfs or http). Uses Redis cache when available. */
 export async function fetchAgentMetadata(
   uri: string
 ): Promise<AgentCard | null> {
   if (!uri || (!uri.startsWith("ipfs://") && !uri.startsWith("http"))) {
     return null;
   }
+  const cached = await getCachedMetadata(uri);
+  if (cached) return cached;
   try {
     const url = uri.startsWith("ipfs://") ? resolveIpfsUrl(uri) : uri;
     const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
     if (!res.ok) return null;
     const json = await res.json();
-    if (json?.name && json?.type) return json as AgentCard;
+    if (json?.name && json?.type) {
+      const meta = json as AgentCard;
+      await setCachedMetadata(uri, meta);
+      return meta;
+    }
     return null;
   } catch {
     return null;

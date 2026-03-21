@@ -1,6 +1,9 @@
 const WEBHOOKS_KEY = "agentfoundry:webhooks";
 const VALID_EVENTS = ["registration", "uri_update", "feedback"] as const;
 
+const MAX_RETRIES = 3;
+const BACKOFF_MS = [1000, 2000, 4000]; // exponential: 1s, 2s, 4s
+
 export type WebhookEvent = (typeof VALID_EVENTS)[number];
 
 export interface WebhookPayload {
@@ -16,6 +19,36 @@ function getRedis(): Redis | null {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
   return new Redis({ url, token });
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function deliverWithRetry(
+  url: string,
+  payload: WebhookPayload
+): Promise<{ ok: boolean; attempts: number }> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(10000),
+      });
+      if (res.ok) return { ok: true, attempts: attempt + 1 };
+      lastError = new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      lastError = err;
+    }
+    if (attempt < MAX_RETRIES) {
+      await sleep(BACKOFF_MS[attempt] ?? 4000);
+    }
+  }
+  console.warn(`Webhook delivery failed after ${MAX_RETRIES + 1} attempts:`, url, lastError);
+  return { ok: false, attempts: MAX_RETRIES + 1 };
 }
 
 export async function registerWebhook(
@@ -81,14 +114,7 @@ export async function notifyWebhooks(
     };
 
     await Promise.allSettled(
-      webhooks.map((w) =>
-        fetch(w.url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(10000),
-        })
-      )
+      webhooks.map((w) => deliverWithRetry(w.url, payload))
     );
   } catch (err) {
     console.error("Webhook notify error:", err);

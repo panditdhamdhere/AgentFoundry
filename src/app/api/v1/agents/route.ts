@@ -16,12 +16,24 @@ import {
 } from "@/lib/agent-utils";
 import type { AgentCard } from "@/lib/types";
 import { getRpcUrlForChain } from "@/lib/env";
+import { fetchRegistrationsFromSubgraph } from "@/lib/subgraph";
 
-/** Fetch recent Registered events for a chain (no owner filter) */
+type Registration = { agentId: string; owner: string; blockNumber: number };
+
+/** Fetch recent Registered events via subgraph (if configured) or RPC. */
 async function fetchRecentRegistrations(
   chainId: number,
   limit: number
-): Promise<Array<{ agentId: string; owner: string; blockNumber: bigint }>> {
+): Promise<Registration[]> {
+  const subgraphResults = await fetchRegistrationsFromSubgraph(
+    chainId,
+    limit * 3
+  );
+  if (subgraphResults.length > 0) {
+    return subgraphResults;
+  }
+
+  // Fallback: raw RPC event scanning
   const registry = REGISTRY_ADDRESSES[chainId];
   const chain = CHAIN_BY_ID[chainId];
   if (!registry || !chain || !isChainSupported(chainId)) return [];
@@ -34,8 +46,7 @@ async function fetchRecentRegistrations(
 
   const blockNumber = await client.getBlockNumber();
   const chunkSize = 2000;
-  const results: Array<{ agentId: string; owner: string; blockNumber: bigint }> =
-    [];
+  const results: Registration[] = [];
 
   for (let i = 0; i < 20; i++) {
     const toBlock = blockNumber - BigInt(i * chunkSize);
@@ -56,7 +67,7 @@ async function fetchRecentRegistrations(
         results.push({
           agentId: String(log.args.agentId),
           owner: log.args.owner,
-          blockNumber: log.blockNumber ?? BigInt(0),
+          blockNumber: Number(log.blockNumber ?? 0),
         });
         if (results.length >= limit) return results;
       }
@@ -143,7 +154,7 @@ export async function GET(request: Request) {
           chainId,
           agentId: reg.agentId,
           owner: reg.owner,
-          blockNumber: Number(reg.blockNumber),
+          blockNumber: reg.blockNumber,
           tokenURI,
           metadata,
           verification,

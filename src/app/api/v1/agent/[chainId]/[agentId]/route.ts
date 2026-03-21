@@ -6,20 +6,9 @@ import {
   isChainSupported,
 } from "@/lib/constants";
 import { REGISTRY_ABI } from "@/lib/registry";
-import { getVerificationStatus } from "@/lib/agent-utils";
-import { env, getRpcUrlForChain } from "@/lib/env";
+import { getVerificationStatus, fetchAgentMetadata } from "@/lib/agent-utils";
+import { getRpcUrlForChain } from "@/lib/env";
 import type { AgentCard } from "@/lib/types";
-
-function resolveIpfsUrl(uri: string): string {
-  if (uri.startsWith("ipfs://")) {
-    const cid = uri.replace("ipfs://", "").split("/")[0];
-    const gateway =
-      env.pinata.gateway || "https://gateway.pinata.cloud";
-    const base = gateway.replace(/\/$/, "");
-    return `${base}/ipfs/${cid}`;
-  }
-  return uri;
-}
 
 export async function GET(
   request: Request,
@@ -84,18 +73,7 @@ export async function GET(
 
     let metadata: AgentCard | null = null;
     if (tokenURI && (tokenURI.startsWith("ipfs://") || tokenURI.startsWith("http"))) {
-      try {
-        const url = tokenURI.startsWith("ipfs://")
-          ? resolveIpfsUrl(tokenURI)
-          : tokenURI;
-        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-        if (res.ok) {
-          const json = await res.json();
-          if (json?.name) metadata = json as AgentCard;
-        }
-      } catch {
-        // IPFS fetch failed - continue without metadata
-      }
+      metadata = await fetchAgentMetadata(tokenURI);
     }
 
     // Fetch reputation
