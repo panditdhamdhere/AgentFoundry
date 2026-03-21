@@ -16,6 +16,7 @@ import { TransferAgentForm } from "@/components/transfer-agent-form";
 import { FeedbackForm } from "@/components/feedback-form";
 import { ChainBadge } from "@/components/chain-badge";
 import { RevokeFeedbackButton } from "@/components/revoke-feedback-button";
+import { AppendResponseForm } from "@/components/append-response-form";
 
 interface AgentMetadata {
   name: string;
@@ -47,6 +48,7 @@ export default function AgentDetailPage() {
   const [showEdit, setShowEdit] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [expandedResponseFor, setExpandedResponseFor] = useState<string | null>(null);
   const [feedbackList, setFeedbackList] = useState<
     Array<{ client: string; feedbackIndex: number; value: number; tag1: string; tag2: string; isRevoked: boolean }>
   >([]);
@@ -242,33 +244,63 @@ export default function AgentDetailPage() {
                       !!address &&
                       !fb.isRevoked &&
                       address.toLowerCase() === fb.client.toLowerCase();
+                    const responseKey = `${fb.client}-${fb.feedbackIndex}`;
+                    const showResponseForm = expandedResponseFor === responseKey;
                     return (
                       <div
                         key={`${fb.client}-${fb.feedbackIndex}-${i}`}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-zinc-900/60 px-3 py-2 text-sm"
+                        className="rounded-lg bg-zinc-900/60 px-3 py-2 text-sm"
                       >
-                        <span className="truncate font-mono text-zinc-400">
-                          {fb.client.slice(0, 6)}…{fb.client.slice(-4)}
-                        </span>
-                        <span className="text-teal-400">
-                          {fb.tag1}: {fb.value}
-                          {fb.tag2 ? ` (${fb.tag2})` : ""}
-                        </span>
-                        <span className="flex items-center gap-2">
-                          {fb.isRevoked ? (
-                            <span className="text-xs text-amber-500">revoked</span>
-                          ) : canRevoke ? (
-                            <RevokeFeedbackButton
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="truncate font-mono text-zinc-400">
+                            {fb.client.slice(0, 6)}…{fb.client.slice(-4)}
+                          </span>
+                          <span className="text-teal-400">
+                            {fb.tag1}: {fb.value}
+                            {fb.tag2 ? ` (${fb.tag2})` : ""}
+                          </span>
+                          <span className="flex items-center gap-2">
+                            {fb.isRevoked ? (
+                              <span className="text-xs text-amber-500">revoked</span>
+                            ) : canRevoke ? (
+                              <RevokeFeedbackButton
+                                agentId={agentId}
+                                chainId={chainId}
+                                feedbackIndex={fb.feedbackIndex}
+                                onSuccess={() => {
+                                  refetchData();
+                                  refetchFeedback();
+                                }}
+                              />
+                            ) : null}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setExpandedResponseFor(showResponseForm ? null : responseKey)
+                              }
+                              className="text-xs text-zinc-500 hover:text-teal-400"
+                            >
+                              {showResponseForm ? "−" : "Add response"}
+                            </button>
+                          </span>
+                        </div>
+                        {showResponseForm && (
+                          <div className="mt-2 border-t border-zinc-800/80 pt-2">
+                            <p className="mb-2 text-xs text-zinc-500">
+                              Add a response (refund proof, reply, etc.). Anyone can append.
+                            </p>
+                            <AppendResponseForm
                               agentId={agentId}
                               chainId={chainId}
+                              clientAddress={fb.client}
                               feedbackIndex={fb.feedbackIndex}
                               onSuccess={() => {
-                                refetchData();
+                                setExpandedResponseFor(null);
                                 refetchFeedback();
                               }}
                             />
-                          ) : null}
-                        </span>
+                          </div>
+                        )}
                       </div>
                     );
                   })}

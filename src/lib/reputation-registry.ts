@@ -58,6 +58,19 @@ export const REPUTATION_ABI = [
   {
     inputs: [
       { name: "agentId", type: "uint256" },
+      { name: "clientAddress", type: "address" },
+      { name: "feedbackIndex", type: "uint64" },
+      { name: "responseURI", type: "string" },
+      { name: "responseHash", type: "bytes32" },
+    ],
+    name: "appendResponse",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { name: "agentId", type: "uint256" },
       { name: "feedbackIndex", type: "uint64" },
     ],
     name: "revokeFeedback",
