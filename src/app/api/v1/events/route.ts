@@ -3,7 +3,14 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { notifyWebhooks } from "@/lib/webhooks";
 import type { WebhookEvent } from "@/lib/webhooks";
 
-const VALID_EVENTS: WebhookEvent[] = ["registration", "uri_update", "feedback"];
+const VALID_EVENTS: WebhookEvent[] = [
+  "registration",
+  "uri_update",
+  "feedback",
+  "feedback_revoked",
+  "ownership_transfer",
+  "validation_response",
+];
 
 export async function POST(request: Request) {
   const rate = await checkRateLimit(request);
@@ -21,7 +28,10 @@ export async function POST(request: Request) {
 
     if (!event || !VALID_EVENTS.includes(event as WebhookEvent)) {
       return NextResponse.json(
-        { error: "Invalid event. Use: registration, uri_update, feedback" },
+        {
+          error:
+            "Invalid event. Use: registration, uri_update, feedback, feedback_revoked, ownership_transfer, validation_response",
+        },
         { status: 400 }
       );
     }

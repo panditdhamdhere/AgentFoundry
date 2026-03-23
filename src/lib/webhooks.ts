@@ -1,5 +1,12 @@
 const WEBHOOKS_KEY = "agentfoundry:webhooks";
-const VALID_EVENTS = ["registration", "uri_update", "feedback"] as const;
+export const VALID_EVENTS = [
+  "registration",
+  "uri_update",
+  "feedback",
+  "feedback_revoked",
+  "ownership_transfer",
+  "validation_response",
+] as const;
 
 const MAX_RETRIES = 3;
 const BACKOFF_MS = [1000, 2000, 4000]; // exponential: 1s, 2s, 4s
@@ -62,7 +69,9 @@ export async function registerWebhook(
     VALID_EVENTS.includes(e)
   ) as WebhookEvent[];
   if (validEvents.length === 0) {
-    throw new Error("At least one event required: registration, uri_update, feedback");
+    throw new Error(
+      "At least one event required: registration, uri_update, feedback, feedback_revoked, ownership_transfer, validation_response"
+    );
   }
 
   try {

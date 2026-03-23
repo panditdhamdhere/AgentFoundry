@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { isAddress } from "viem";
 import { REGISTRY_ABI } from "@/lib/registry";
 import { REGISTRY_ADDRESSES, isChainSupported } from "@/lib/constants";
+import { emitEvent } from "@/lib/emit-event";
 
 interface TransferAgentFormProps {
   chainId: number;
@@ -22,6 +23,7 @@ export function TransferAgentForm({
   const [toAddress, setToAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const transferToRef = useRef<string | null>(null);
 
   const registryAddress = REGISTRY_ADDRESSES[chainId];
   const isSupported = !!registryAddress && isChainSupported(chainId);
@@ -32,9 +34,19 @@ export function TransferAgentForm({
   useEffect(() => {
     if (isSuccess && !success) {
       setSuccess(true);
+      const to = transferToRef.current ?? toAddress.trim();
+      if (to) {
+        emitEvent("ownership_transfer", {
+          chainId,
+          agentId,
+          from: ownerAddress,
+          to,
+        });
+      }
+      transferToRef.current = null;
       onSuccess?.();
     }
-  }, [isSuccess, success, onSuccess]);
+  }, [isSuccess, success, onSuccess, chainId, agentId, ownerAddress, toAddress]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +67,7 @@ export function TransferAgentForm({
       return;
     }
 
+    transferToRef.current = trimmed;
     writeContract({
       address: registryAddress,
       abi: REGISTRY_ABI,

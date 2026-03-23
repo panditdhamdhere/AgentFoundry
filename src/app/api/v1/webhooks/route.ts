@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { requireApiKeyIfConfigured } from "@/lib/env";
-import { registerWebhook } from "@/lib/webhooks";
-import type { WebhookEvent } from "@/lib/webhooks";
+import { registerWebhook, VALID_EVENTS, type WebhookEvent } from "@/lib/webhooks";
 
 export async function POST(request: Request) {
   const rate = await checkRateLimit(request);
@@ -20,10 +19,9 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const url = typeof body.url === "string" ? body.url.trim() : "";
-    const validEvents: WebhookEvent[] = ["registration", "uri_update", "feedback"];
     const events = Array.isArray(body.events)
       ? body.events.filter((e: unknown): e is WebhookEvent =>
-          typeof e === "string" && validEvents.includes(e as WebhookEvent)
+          typeof e === "string" && VALID_EVENTS.includes(e as WebhookEvent)
         )
       : [];
 

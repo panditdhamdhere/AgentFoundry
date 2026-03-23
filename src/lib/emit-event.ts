@@ -1,6 +1,8 @@
-/** Fire-and-forget emit event to trigger webhooks. Call after registration, uri_update, or feedback. */
+import type { WebhookEvent } from "./webhooks";
+
+/** Fire-and-forget emit event to trigger webhooks. */
 export function emitEvent(
-  event: "registration" | "uri_update" | "feedback",
+  event: WebhookEvent,
   data: Record<string, unknown>
 ): void {
   fetch("/api/v1/events", {

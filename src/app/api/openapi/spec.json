@@ -263,7 +263,7 @@
     "/api/v1/webhooks": {
       "post": {
         "summary": "Register webhook",
-        "description": "Register URL for events: registration, uri_update, feedback. Requires API key when configured.",
+        "description": "Register URL for events: registration, uri_update, feedback, feedback_revoked, ownership_transfer, validation_response. Requires API key when configured.",
         "tags": ["Webhooks"],
         "requestBody": {
           "content": {
@@ -273,7 +273,7 @@
                 "required": ["url", "events"],
                 "properties": {
                   "url": { "type": "string", "format": "uri" },
-                  "events": { "type": "array", "items": { "type": "string", "enum": ["registration", "uri_update", "feedback"] } }
+                  "events": { "type": "array", "items": { "type": "string", "enum": ["registration", "uri_update", "feedback", "feedback_revoked", "ownership_transfer", "validation_response"] } }
                 }
               }
             }
@@ -285,7 +285,7 @@
     "/api/v1/events": {
       "post": {
         "summary": "Emit event (internal)",
-        "description": "Triggers webhook delivery. Called by frontend after registration, uri_update, feedback.",
+        "description": "Triggers webhook delivery. Called by frontend after registration, uri_update, feedback, transfer, revoke.",
         "tags": ["Webhooks"],
         "requestBody": {
           "content": {
@@ -293,7 +293,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "event": { "type": "string", "enum": ["registration", "uri_update", "feedback"] },
+                  "event": { "type": "string", "enum": ["registration", "uri_update", "feedback", "feedback_revoked", "ownership_transfer", "validation_response"] },
                   "data": { "type": "object" }
                 }
               }

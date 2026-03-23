@@ -106,10 +106,11 @@ export default function DocsPage() {
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-zinc-400">
                   Register a webhook URL for events: registration, uri_update,
-                  feedback. Requires API key when configured.
+                  feedback, feedback_revoked, ownership_transfer, validation_response.
+                  Requires API key when configured.
                 </p>
                 <pre className="mt-3 overflow-x-auto rounded-lg bg-zinc-950 p-3 text-xs text-zinc-300">
-                  {`{ "url": "https://your-server.com/webhook", "events": ["registration", "uri_update", "feedback"] }`}
+                  {`{ "url": "https://your-server.com/webhook", "events": ["registration", "uri_update", "feedback", "feedback_revoked", "ownership_transfer", "validation_response"] }`}
                 </pre>
               </div>
             </div>

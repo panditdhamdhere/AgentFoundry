@@ -20,6 +20,7 @@ import { AppendResponseForm } from "@/components/append-response-form";
 import { ValidationRequestForm } from "@/components/validation-request-form";
 import { AgentWalletForm } from "@/components/agent-wallet-form";
 import { AgentMetadataForm } from "@/components/agent-metadata-form";
+import { ReputationBadge } from "@/components/reputation-badge";
 
 interface AgentMetadata {
   name: string;
@@ -229,19 +230,27 @@ export default function AgentDetailPage() {
               <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                 Reputation
               </h2>
-              <p className="mt-2 font-mono text-lg font-medium text-zinc-100">
-                {data.reputation.count} feedback
-                {data.reputation.count !== 1 ? "s" : ""}
-                {data.reputation.count > 0 && data.reputation.summaryValue !== 0 && (
-                  <span className="ml-2 text-teal-400">
-                    (avg: {data.reputation.summaryValue}
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <p className="font-mono text-lg font-medium text-zinc-100">
+                  {data.reputation.count} feedback
+                  {data.reputation.count !== 1 ? "s" : ""}
+                  {data.reputation.count > 0 && data.reputation.summaryValue !== 0 && (
+                    <span className="ml-2 text-teal-400">
+                      (avg: {data.reputation.summaryValue}
                     {data.reputation.summaryValueDecimals > 0
                       ? `.${String(data.reputation.summaryValueDecimals).padStart(2, "0")}`
                       : ""}
                     )
                   </span>
-                )}
-              </p>
+                  )}
+                </p>
+                <ReputationBadge
+                  count={data.reputation.count}
+                  summaryValue={data.reputation.summaryValue}
+                  summaryValueDecimals={data.reputation.summaryValueDecimals}
+                  size="md"
+                />
+              </div>
               {feedbackList.length > 0 && (
                 <div className="mt-4 space-y-2">
                   <p className="text-xs font-medium text-zinc-500">Recent feedback</p>
