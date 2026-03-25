@@ -21,6 +21,7 @@ import { ValidationRequestForm } from "@/components/validation-request-form";
 import { AgentWalletForm } from "@/components/agent-wallet-form";
 import { AgentMetadataForm } from "@/components/agent-metadata-form";
 import { ReputationBadge } from "@/components/reputation-badge";
+import { ValidationResponseForm } from "@/components/validation-response-form";
 
 interface AgentMetadata {
   name: string;
@@ -399,6 +400,20 @@ export default function AgentDetailPage() {
                       />
                     </div>
                   )}
+                  <div className="mt-4 border-t border-zinc-800/80 pt-4">
+                    <p className="text-xs font-medium text-zinc-500">
+                      Submit validation response (validator)
+                    </p>
+                    <ValidationResponseForm
+                      agentId={agentId}
+                      chainId={chainId}
+                      onSuccess={() => {
+                        fetch(`/api/v1/validation?agentId=${agentId}&chainId=${chainId}`)
+                          .then((r) => r.json())
+                          .then(setValidationData);
+                      }}
+                    />
+                  </div>
                 </>
               ) : (
                 <p className="mt-2 text-sm text-zinc-500">
