@@ -8,6 +8,7 @@ import {
   getAgentExplorerUrl,
 } from "@/lib/constants";
 import { VerificationBadge } from "@/components/verification-badge";
+import { TrustScoreBadge } from "@/components/trust-score-badge";
 
 interface DirectoryAgent {
   chainId: number;
@@ -28,6 +29,9 @@ export default function DirectoryPage() {
   const [agents, setAgents] = useState<DirectoryAgent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [trustScores, setTrustScores] = useState<
+    Record<string, { score: number; level: "low" | "medium" | "high" }>
+  >({});
 
   useEffect(() => {
     setLoading(true);
@@ -46,6 +50,38 @@ export default function DirectoryPage() {
       .catch((e) => setError(e instanceof Error ? e.message : "Error"))
       .finally(() => setLoading(false));
   }, [chainId, protocol, search]);
+
+  useEffect(() => {
+    if (agents.length === 0) {
+      setTrustScores({});
+      return;
+    }
+    Promise.all(
+      agents.map(async (agent) => {
+        try {
+          const res = await fetch(
+            `/api/v1/ai/trust-score?agentId=${agent.agentId}&chainId=${agent.chainId}`
+          );
+          if (!res.ok) return null;
+          const d = await res.json();
+          if (d?.score == null || !d?.level) return null;
+          return {
+            key: `${agent.chainId}-${agent.agentId}`,
+            score: Number(d.score),
+            level: d.level as "low" | "medium" | "high",
+          };
+        } catch {
+          return null;
+        }
+      })
+    ).then((results) => {
+      const next: Record<string, { score: number; level: "low" | "medium" | "high" }> = {};
+      for (const r of results) {
+        if (r) next[r.key] = { score: r.score, level: r.level };
+      }
+      setTrustScores(next);
+    });
+  }, [agents]);
 
   return (
     <div className="section-padding w-full">
@@ -137,6 +173,14 @@ export default function DirectoryPage() {
                   <p className="text-xs text-zinc-500">
                     {agent.chainName} · Agent #{agent.agentId}
                   </p>
+                  {trustScores[`${agent.chainId}-${agent.agentId}`] && (
+                    <div className="mt-1">
+                      <TrustScoreBadge
+                        score={trustScores[`${agent.chainId}-${agent.agentId}`].score}
+                        level={trustScores[`${agent.chainId}-${agent.agentId}`].level}
+                      />
+                    </div>
+                  )}
                   {agent.metadata?.description && (
                     <p className="mt-1 line-clamp-1 text-sm text-zinc-400">
                       {agent.metadata.description}

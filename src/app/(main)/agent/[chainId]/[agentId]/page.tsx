@@ -22,6 +22,7 @@ import { AgentWalletForm } from "@/components/agent-wallet-form";
 import { AgentMetadataForm } from "@/components/agent-metadata-form";
 import { ReputationBadge } from "@/components/reputation-badge";
 import { ValidationResponseForm } from "@/components/validation-response-form";
+import { TrustScoreBadge } from "@/components/trust-score-badge";
 
 interface AgentMetadata {
   name: string;
@@ -70,6 +71,10 @@ export default function AgentDetailPage() {
     averageResponse: number;
     validations: Array<{ response: number; tag: string }>;
   } | null>(null);
+  const [trustScore, setTrustScore] = useState<{
+    score: number;
+    level: "low" | "medium" | "high";
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -106,6 +111,19 @@ export default function AgentDetailPage() {
       .then((r) => r.json())
       .then(setValidationData)
       .catch(() => setValidationData({ available: false, count: 0, averageResponse: 0, validations: [] }));
+  }, [chainId, agentId]);
+
+  // Fetch AI trust score
+  useEffect(() => {
+    if (!chainId || !agentId) return;
+    fetch(`/api/v1/ai/trust-score?agentId=${agentId}&chainId=${chainId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.score != null && d?.level) {
+          setTrustScore({ score: Number(d.score), level: d.level });
+        }
+      })
+      .catch(() => {});
   }, [chainId, agentId]);
 
   if (loading) {
@@ -193,6 +211,15 @@ export default function AgentDetailPage() {
             <p className="mt-1 text-sm text-zinc-500">
               {chainName} · Agent #{agentId}
             </p>
+            {trustScore && (
+              <div className="mt-2">
+                <TrustScoreBadge
+                  score={trustScore.score}
+                  level={trustScore.level}
+                  size="md"
+                />
+              </div>
+            )}
 
             {/* Copy identifier & shareable link */}
             <div className="mt-4 flex flex-wrap gap-4">
