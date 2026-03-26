@@ -57,6 +57,7 @@ export default function AgentDetailPage() {
   const [showOnChainMetadata, setShowOnChainMetadata] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [showTrustReasons, setShowTrustReasons] = useState(false);
   const [expandedResponseFor, setExpandedResponseFor] = useState<string | null>(null);
   const [feedbackList, setFeedbackList] = useState<
     Array<{ client: string; feedbackIndex: number; value: number; tag1: string; tag2: string; isRevoked: boolean }>
@@ -74,6 +75,7 @@ export default function AgentDetailPage() {
   const [trustScore, setTrustScore] = useState<{
     score: number;
     level: "low" | "medium" | "high";
+    reasons: string[];
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,7 +122,11 @@ export default function AgentDetailPage() {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.score != null && d?.level) {
-          setTrustScore({ score: Number(d.score), level: d.level });
+          setTrustScore({
+            score: Number(d.score),
+            level: d.level,
+            reasons: Array.isArray(d.reasons) ? d.reasons : [],
+          });
         }
       })
       .catch(() => {});
@@ -218,6 +224,24 @@ export default function AgentDetailPage() {
                   level={trustScore.level}
                   size="md"
                 />
+                {trustScore.reasons.length > 0 && (
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowTrustReasons((v) => !v)}
+                      className="text-xs text-zinc-500 hover:text-teal-400"
+                    >
+                      {showTrustReasons ? "Hide why this score" : "Why this score?"}
+                    </button>
+                    {showTrustReasons && (
+                      <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-zinc-400">
+                        {trustScore.reasons.map((reason, i) => (
+                          <li key={`${reason}-${i}`}>{reason}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 

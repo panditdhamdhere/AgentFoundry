@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { computeTrustScore } from "@/lib/trust-score";
+import { getCachedTrustScore, setCachedTrustScore } from "@/lib/trust-score-cache";
 
 export async function GET(request: Request) {
   try {
@@ -10,6 +11,16 @@ export async function GET(request: Request) {
 
     if (!agentId) {
       return NextResponse.json({ error: "agentId is required" }, { status: 400 });
+    }
+
+    const cached = await getCachedTrustScore(chainId, agentId);
+    if (cached) {
+      return NextResponse.json({
+        chainId,
+        agentId,
+        ...cached,
+        cached: true,
+      });
     }
 
     const url = new URL(request.url);
@@ -55,6 +66,7 @@ export async function GET(request: Request) {
       validationCount,
       validationAverage,
     });
+    await setCachedTrustScore(chainId, agentId, trust);
 
     return NextResponse.json({
       chainId,
@@ -67,6 +79,7 @@ export async function GET(request: Request) {
         validationAverage,
       },
       ...trust,
+      cached: false,
     });
   } catch (error) {
     console.error("Trust score API error:", error);
