@@ -30,7 +30,7 @@ export default function DirectoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trustScores, setTrustScores] = useState<
-    Record<string, { score: number; level: "low" | "medium" | "high" }>
+    Record<string, { score: number; level: "low" | "medium" | "high"; reasons: string[] }>
   >({});
 
   useEffect(() => {
@@ -69,15 +69,16 @@ export default function DirectoryPage() {
             key: `${agent.chainId}-${agent.agentId}`,
             score: Number(d.score),
             level: d.level as "low" | "medium" | "high",
+            reasons: Array.isArray(d.reasons) ? d.reasons : [],
           };
         } catch {
           return null;
         }
       })
     ).then((results) => {
-      const next: Record<string, { score: number; level: "low" | "medium" | "high" }> = {};
+      const next: Record<string, { score: number; level: "low" | "medium" | "high"; reasons: string[] }> = {};
       for (const r of results) {
-        if (r) next[r.key] = { score: r.score, level: r.level };
+        if (r) next[r.key] = { score: r.score, level: r.level, reasons: r.reasons };
       }
       setTrustScores(next);
     });
@@ -179,6 +180,11 @@ export default function DirectoryPage() {
                         score={trustScores[`${agent.chainId}-${agent.agentId}`].score}
                         level={trustScores[`${agent.chainId}-${agent.agentId}`].level}
                       />
+                      {trustScores[`${agent.chainId}-${agent.agentId}`].reasons[0] && (
+                        <p className="mt-1 max-w-xl truncate text-xs text-zinc-500">
+                          AI insight: {trustScores[`${agent.chainId}-${agent.agentId}`].reasons[0]}
+                        </p>
+                      )}
                     </div>
                   )}
                   {agent.metadata?.description && (
